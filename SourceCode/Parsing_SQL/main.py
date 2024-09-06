@@ -3,79 +3,43 @@ import Extract_Subselects
 import pandas as pd
 import sqlparse
 import Extract_tbl_name
-import openpyxl
 
+# Điền tên file cần xử lý vào đây
+file_name = "BIDV_MIS_20240813_DMT_100_job"
 
-# Read the SQL file
-def read_sql_file(file_path):
-    with open(file_path, 'r') as file:
-        return file.read()
-       
-# # Extract the sub-selects from the SQL query
-# sql_file_path = r'D:\FSS_RnD\SQL_command\sub-select.sql'
-# sql_content = read_sql_file(sql_file_path)
+file_input = f"Output\\SQL_Job_DS\\{file_name}_SQLs.xlsx"
+file_output = f"Output\\Tables_Columns\\{file_name}_TAB_COL.xlsx"
 
-# df_tables_with_aliases, df_alias_column_pairs = Extract_Subselects.process_sql_with_source(sql_content)
+df = pd.read_excel(file_input)
 
-# # Display the DataFrames 
-# print("Extracted Sub-Selects:")
-# print("DataFrame of Table Names with Aliases:")
-# print(df_tables_with_aliases)
+result = pd.DataFrame(columns=['job', 'table_name', 'alias', 'column_name'])
 
-# print("\nDataFrame of Table Aliases with Column Names:")
-# print(df_alias_column_pairs)
-# print("DataFrame of Table Name, Alias, Columns:")
-# inner_join_df_subselects = pd.merge(df_tables_with_aliases, df_alias_column_pairs, on = ['Table Alias','Source'], how ='inner')
-# print(inner_join_df_subselects)
-    
-# Extract the SQL with CTEs from the SQL query
-sql_file_path = r'D:\\FSS_RnD\SQL_command\CTE_with.sql' 
-sql_ctes = read_sql_file(sql_file_path)
-   
-formatted_sql = sqlparse.format(sql_ctes)
-print("--------------------------------")
-print("Extracted CTEs:")
-# Process the SQL query to get DataFrames
-table_df, column_df = Extract_WITH_CTE.process_sql_query_to_dfs(formatted_sql)
+# Bước 3: Duyệt qua từng dòng và sử dụng extract_with_cte
+for index, row in df.iterrows():
+    job_name = row['Job Name']
+    query = row['SQL Query']
 
-# # Display the DataFrames
-# print("Table Names and Aliases DataFrame:")
-# print(table_df)
-# print("\nColumn Names and Aliases DataFrame:")
-# print(column_df)
-# print("DataFrame of Table Name, Alias, Columns:")
-# inner_join_df_cte = pd.merge(table_df, column_df, on = ['Table Alias'], how ='inner')
-# print(inner_join_df_cte)
+    # Gọi hàm extract_with_cte để lấy bảng và cột
+    table_df, column_df = Extract_WITH_CTE.process_sql_query_to_dfs(query)
 
-# Extract simple SQL query
-# print("Extracted simple SQL query:")
-# sql_file_path = r'D:\FSS_RnD\SQL_command\select_simple.sql' 
-# simple_sql = read_sql_file(sql_file_path)
-# formatted_sql = sqlparse.format(simple_sql).upper()
-   
-# tables_with_aliases = Extract_tbl_name.extract_table_names_with_aliases(formatted_sql)
-# df_tbl_alias = pd.DataFrame(tables_with_aliases, columns=['Tables', 'Ailases'])
-# # print("Extracted tables with aliases:")
-# # print(df_tbl_alias)
-# col_with_alias = Extract_tbl_name.extract_alias_column_pairs(formatted_sql)
-# df_col_alias = pd.DataFrame(col_with_alias,columns =['Ailases', 'Columns'])
-# # print(df_col_alias)
-# # inner join 2 df
-# print("DataFrame of Table Name, Alias, Columns:")
-# inner_join_df_simple = pd.merge(df_tbl_alias, df_col_alias, on ='Ailases', how ='inner')
-# print(inner_join_df_simple)
+    # Bước 3a: Duyệt qua từng bảng alias và nối với thông tin cột tương ứng
+    for _, table_row in table_df.iterrows():
+        table_name = table_row['Table Name']
+        table_alias = table_row['Table Alias']
+        
+        # Lọc các cột tương ứng với alias của bảng
+        related_columns = column_df[column_df['Table Alias'] == table_alias]
+        
+        # Duyệt qua từng cột tương ứng và thêm vào DataFrame kết quả
+        for _, col_row in related_columns.iterrows():
+            column_name = col_row['Column Name']
+            result = result._append({
+                'job': job_name,
+                'table_name': table_name,
+                'alias': table_alias,
+                'column_name': column_name
+            }, ignore_index=True)
 
+result = result.drop_duplicates()
 
-# # Save the DataFrame to an Excel file
-# with pd.ExcelWriter('Output\FSS_parsing_SQL.xlsx') as writer:
-#     inner_join_df_simple.to_excel(
-#         writer,
-#         sheet_name='Table Name, Alias, Columns',
-#         index=False
-#     )
-#     df_col_alias.to_excel(
-#         writer,
-#         sheet_name='Alias, Columns',
-#         index=False
-#     )
-# print("Done") 
+result.to_excel(file_output, index=False)

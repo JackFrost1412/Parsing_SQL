@@ -1,11 +1,12 @@
 from Docx_Text import extract_sql_code
 
-# Đọc file Word và trích xuất SQL code vào DataFrame
-df_sql = extract_sql_code('Input/Docx/JOB nghiệp vụ 2.11.docx')
+file_input = 'Input/Docx/JOB nghiệp vụ 2.11.docx'
+file_output = 'Output/SQL_Docx/docx_text_queries.xlsx'
 
-output_file = 'Output/SQL_Docx/docx_text_queries.xlsx'
+# Đọc file Word và trích xuất SQL code vào DataFrame
+df_sql = extract_sql_code(file_input)
 
 # Xuất file Excel
-df_sql.to_excel(output_file, index=False)
+df_sql.to_excel(file_output, index=False)
 
-print(f"File Excel đã được lưu tại: {output_file}")
+print(f"File Excel đã được lưu tại: {file_output}")

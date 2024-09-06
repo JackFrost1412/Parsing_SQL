@@ -17,7 +17,7 @@ def extract_table_names_with_aliases(sql):
         
         
         for token in stmt.tokens:
-            print(f"Token: {token}, Type: {token.ttype}")
+            # print(f"Token: {token}, Type: {token.ttype}")
             # Update the context when encountering relevant keywords
             if token.ttype is Keyword:
                 value = token.value.upper()
@@ -52,6 +52,4 @@ def extract_alias_column_pairs(sql):
             # print(f"- {alias}.{column}")
             columns.append(alias + "." + column)
             tuples = [tuple(col.split('.', 1)) for col in columns]
-    else:
-        print("No alias.column pairs found.")
     return tuples

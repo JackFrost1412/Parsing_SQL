@@ -43,8 +43,8 @@ def extract_ctes_and_rest(sql):
 def process_sql_query_to_dfs(sql):
     # Extract CTEs and main SQL command
     cte_dict, main_sql = extract_ctes_and_rest(sql)
-    print(f"Extracted main of SQL command: {main_sql}")
-    print("----------------------------------------")
+    # print(f"Extracted main of SQL command: {main_sql}")
+    # print("----------------------------------------")
     # Initialize lists to store data
     table_data = []
     column_data = []
