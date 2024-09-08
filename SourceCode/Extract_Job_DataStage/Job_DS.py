@@ -24,6 +24,9 @@ def extract_jobs_and_sql(dsx_content):
         # Loại bỏ comment trong câu truy vấn
         query = remove_comments(query)
         
+        # Thay thế #pDate# thành :pDate:
+        query = query.replace("#pDate#", ":pDate:")
+        
         # Chỉ lấy những câu truy vấn bắt đầu bằng từ khóa SQL chính xác
         sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH']
         for keyword in sql_keywords:
