@@ -35,7 +35,7 @@ def extract_sql_code(docx_file):
     current_block = []
     current_heading = None
     
-    sql_dml_keywords = ('SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM')
+    sql_dml_keywords = ('WITH', 'SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM')
     sql_keywords = ('WITH', 'SELECT', 'UPDATE', 'CASE WHEN', 'CASE', 'WHERE', 'UNION ALL', 'JOIN', 'INSERT INTO', 'DELETE FROM')
     
     paragraphs = doc.paragraphs
@@ -85,6 +85,9 @@ def extract_sql_code(docx_file):
     # Tạo DataFrame từ danh sách sql_data
     df = pd.DataFrame(sql_data, columns=['Heading', 'SQL Query'])
 
+    # Thêm cột 'Has JOIN' để đánh dấu câu lệnh có 'JOIN'
+    df['Has JOIN'] = df['SQL Query'].str.contains(r'\bJOIN\b', case=False, na=False)
+    
     return df
 
 
