@@ -1,7 +1,6 @@
 import Extract_WITH_CTE
 import Extract_Subselects
 import pandas as pd
-import sqlparse
 import Extract_tbl_name
 
 # Điền tên file cần xử lý vào đây
@@ -14,7 +13,7 @@ df = pd.read_excel(file_input)
 
 result = pd.DataFrame(columns=['job', 'table_name', 'alias', 'column_name'])
 
-# Bước 3: Duyệt qua từng dòng và sử dụng extract_with_cte
+# Duyệt qua từng dòng và sử dụng extract_with_cte
 for index, row in df.iterrows():
     job_name = row['Job Name']
     query = row['SQL Query']
@@ -22,7 +21,7 @@ for index, row in df.iterrows():
     # Gọi hàm extract_with_cte để lấy bảng và cột
     table_df, column_df = Extract_WITH_CTE.process_sql_query_to_dfs(query)
 
-    # Bước 3a: Duyệt qua từng bảng alias và nối với thông tin cột tương ứng
+    # Duyệt qua từng bảng alias và nối với thông tin cột tương ứng
     for _, table_row in table_df.iterrows():
         table_name = table_row['Table Name']
         table_alias = table_row['Table Alias']
