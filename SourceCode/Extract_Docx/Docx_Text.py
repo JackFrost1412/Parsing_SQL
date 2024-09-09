@@ -35,7 +35,7 @@ def extract_sql_code(docx_file):
     current_block = []
     current_heading = None
     
-    sql_dml_keywords = ('WITH','SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM')
+    sql_dml_keywords = ('WITH', 'SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM')
     sql_keywords = ('WITH', 'SELECT', 'UPDATE', 'CASE WHEN', 'CASE', 'WHERE', 'UNION ALL', 'JOIN', 'INSERT INTO', 'DELETE FROM')
     
     paragraphs = doc.paragraphs
