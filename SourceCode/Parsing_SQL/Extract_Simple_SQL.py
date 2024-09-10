@@ -74,7 +74,7 @@ for sql_command in sql_commands:
         for column in unqualified_columns:
 
             # print(f"Table: {table}, Column: {column}")
-            data.append({"table_name": table_name[0], "column_name": column})
+            data.append({"Table_name": table_name[0], "Column_name": column})
       
 # Convert the list of dictionaries to a pandas DataFrame
 df = pd.DataFrame(data)
