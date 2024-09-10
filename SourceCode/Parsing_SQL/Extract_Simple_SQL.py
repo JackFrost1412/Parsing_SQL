@@ -64,16 +64,18 @@ sql_commands = sqlparse.split(sql_content)
 data = []
 
 for sql_command in sql_commands:
-    # Extract unqualified column names
+# Extract unqualified column names
     unqualified_columns = extract_unqualified_columns_from_query(sql_command)
-    # Extract table names and aliases
+# Extract table names and aliases
     table_names = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
-    # Extract the table name from list_1 (second element)
-    table_name = table_names[0][1]  # This will get 'TBL_BI_LC_RELEASE_SALES'
+# Extract the table name from list_1 (second element)
+    for table_name, column in zip(table_names,unqualified_columns):
+        # print(f"Table: {table}, Column: {column}")
+        for column in unqualified_columns:
 
-    # Create a list of dictionaries for the DataFrame
-    data = [{'table_name': table_name, 'column_name': col} for col in unqualified_columns]
-
+            # print(f"Table: {table}, Column: {column}")
+            data.append({"table_name": table_name[0], "column_name": column})
+      
 # Convert the list of dictionaries to a pandas DataFrame
 df = pd.DataFrame(data)
 
