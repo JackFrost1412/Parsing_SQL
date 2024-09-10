@@ -1,6 +1,6 @@
 import sqlparse
 from sqlparse.tokens import Keyword, DML, Keyword
-import Extract_tbl_name
+import Extract_Nested_SQL
 import pandas as pd
 
 def extract_ctes_and_rest(sql):
@@ -52,18 +52,18 @@ def process_sql_query_to_dfs(sql):
     # Process CTEs
     for cte_name, cte_sql in cte_dict.items():
         # Extract tables and columns
-        tables_with_aliases = Extract_tbl_name.extract_table_names_with_aliases(cte_sql)
-        alias_column_pairs = Extract_tbl_name.extract_alias_column_pairs(cte_sql)
+        tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(cte_sql)
+        alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(cte_sql)
         
         # Append tables to the table_data list
         table_data.extend([(cte_name, table, alias) for table, alias in tables_with_aliases])
         
         # Append columns to the column_data list
         column_data.extend([(cte_name, alias, col) for alias, col in alias_column_pairs])
-    
+        
     # Process main SQL command
-    tables_with_aliases = Extract_tbl_name.extract_table_names_with_aliases(main_sql)
-    alias_column_pairs = Extract_tbl_name.extract_alias_column_pairs(main_sql)
+    tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(main_sql)
+    alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(main_sql)
     
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
@@ -76,4 +76,3 @@ def process_sql_query_to_dfs(sql):
     column_df = pd.DataFrame(column_data, columns=["Source", "Table Alias", "Column Name"])
     
     return table_df, column_df
-

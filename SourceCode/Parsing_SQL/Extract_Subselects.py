@@ -3,7 +3,7 @@ import pandas as pd
 import re
 from sqlparse.sql import IdentifierList, Identifier, Parenthesis
 from sqlparse.tokens import Keyword, DML
-import Extract_tbl_name
+import Extract_Nested_SQL
 
 def read_sql_file(file_path):
     with open(file_path, 'r') as file:
@@ -67,8 +67,8 @@ def process_sql_with_source(sql):
     # Process sub-selects
     for alias, subselect in cleaned_subselects:
         source = alias if alias else 'sub-select'
-        tables_with_aliases = Extract_tbl_name.extract_table_names_with_aliases(subselect)
-        alias_column_pairs = Extract_tbl_name.extract_alias_column_pairs(subselect)
+        tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(subselect)
+        alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(subselect)
 
         # Add source information to each entry
         tables_with_aliases_with_source = [(source, table, alias) for table, alias in tables_with_aliases]
@@ -78,8 +78,8 @@ def process_sql_with_source(sql):
         all_alias_column_pairs.extend(alias_column_pairs_with_source)
 
     # Process the main SQL command
-    main_tables_with_aliases = Extract_tbl_name.extract_table_names_with_aliases(rest_of_sql_command)
-    main_alias_column_pairs = Extract_tbl_name.extract_alias_column_pairs(rest_of_sql_command)
+    main_tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(rest_of_sql_command)
+    main_alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(rest_of_sql_command)
 
     # Add 'main SQL' as the source
     main_tables_with_aliases_with_source = [('main SQL', table, alias) for table, alias in main_tables_with_aliases]
