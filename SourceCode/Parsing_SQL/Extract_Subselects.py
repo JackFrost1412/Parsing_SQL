@@ -92,6 +92,8 @@ def process_sql_with_source(sql):
     df_tables_with_aliases = pd.DataFrame(all_tables_with_aliases, columns=['Source', 'Table Name', 'Table Alias'])
     df_alias_column_pairs = pd.DataFrame(all_alias_column_pairs, columns=['Source', 'Table Alias', 'Column Name'])
 
-    return df_tables_with_aliases, df_alias_column_pairs
+    inner_join_df_subselects = pd.merge(df_tables_with_aliases, df_alias_column_pairs, on = ['Table Alias','Source'], how ='inner')
+    
+    return inner_join_df_subselects
 
 

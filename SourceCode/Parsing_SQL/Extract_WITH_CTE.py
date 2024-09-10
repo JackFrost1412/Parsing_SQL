@@ -75,4 +75,6 @@ def process_sql_query_to_dfs(sql):
     table_df = pd.DataFrame(table_data, columns=["Source", "Table Name", "Table Alias"])
     column_df = pd.DataFrame(column_data, columns=["Source", "Table Alias", "Column Name"])
     
-    return table_df, column_df
+    inner_join_df_cte = pd.merge(table_df, column_df, on = ['Table Alias'], how ='inner')
+    
+    return inner_join_df_cte
