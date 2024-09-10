@@ -36,6 +36,7 @@ def extract_table_names_with_aliases(sql):
     
     # Convert list to pandas DataFrame
     return tables_with_aliases
+
 def extract_alias_column_pairs(sql):
     # Regular expression to match alias.column patterns
     pattern = re.compile(r'(\b\w+\b)\.(\b\w+\b)', re.IGNORECASE)
