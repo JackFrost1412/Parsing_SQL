@@ -52,32 +52,25 @@ def extract_unqualified_columns_from_query(sql_query):
     
     return columns
 
-# Example SQL query with both qualified and unqualified column names
-def read_sql_file(file_path):
-    with open(file_path, 'r') as file:
-        return file.read()
-# Extract the sub-selects from the SQL query
-sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\Update.sql'
-sql_content = read_sql_file(sql_file_path)
-sql_commands = sqlparse.split(sql_content)
-# Initialize an empty list to collect rows for the DataFrame
-data = []
-
-for sql_command in sql_commands:
-# Extract unqualified column names
-    unqualified_columns = extract_unqualified_columns_from_query(sql_command)
-# Extract table names and aliases
-    table_names = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
-# Extract the table name from list_1 (second element)
-    for table_name, column in zip(table_names,unqualified_columns):
-        # print(f"Table: {table}, Column: {column}")
-        for column in unqualified_columns:
-
-            # print(f"Table: {table}, Column: {column}")
-            data.append({"Table_name": table_name[0], "Column_name": column})
-      
-# Convert the list of dictionaries to a pandas DataFrame
-df = pd.DataFrame(data)
-
-# Show the DataFrame
-print(df)
+def process_simple_query(sql_commands):
+    sql_commands = sqlparse.split(sql_commands)
+    # Initialize an empty list to collect rows for the DataFrame
+    data = []
+    
+    # Loop through each SQL command
+    for sql_command in sql_commands:
+        # Extract unqualified column names
+        unqualified_columns = extract_unqualified_columns_from_query(sql_command)
+        # Extract table names and aliases
+        table_names = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
+        
+        # Extract the table name from list_1 (first element of table_names tuple)
+        for table_name in table_names:
+            for column in unqualified_columns:
+                data.append({"Table Name": table_name[0],"Table Alias" : None , "Column Name": column})
+    
+    # Convert the list of dictionaries to a pandas DataFrame
+    df = pd.DataFrame(data)
+    
+    # Return the DataFrame
+    return df
