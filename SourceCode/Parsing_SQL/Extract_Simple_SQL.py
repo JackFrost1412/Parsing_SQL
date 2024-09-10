@@ -67,7 +67,7 @@ def process_simple_query(sql_commands):
         # Extract the table name from list_1 (first element of table_names tuple)
         for table_name in table_names:
             for column in unqualified_columns:
-                data.append({"Table Name": table_name[0],"Table Alias" : None , "Column Name": column})
+                data.append({"Source": None,"Table Name": table_name[0],"Table Alias" : None , "Column Name": column})
     
     # Convert the list of dictionaries to a pandas DataFrame
     df = pd.DataFrame(data)
