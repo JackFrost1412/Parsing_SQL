@@ -20,7 +20,7 @@ def extract_table_names_with_aliases(sql):
             # Update the context when encountering relevant keywords
             if token.ttype is Keyword or token.ttype is DML:
                 value = token.value.upper()
-                if value in ['WITH', 'JOIN', 'INTO', 'UPDATE']:
+                if value in [ 'JOIN', 'INTO', 'UPDATE']:
                     context = value
                 elif value in ['FROM', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN']:
                     context = 'JOIN'
