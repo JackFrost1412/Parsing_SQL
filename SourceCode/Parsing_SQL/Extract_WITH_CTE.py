@@ -43,8 +43,9 @@ def extract_ctes_and_rest(sql):
 def process_sql_query_to_dfs(sql):
     # Extract CTEs and main SQL command
     cte_dict, main_sql = extract_ctes_and_rest(sql)
-    # print(f"Extracted main of SQL command: {main_sql}")
-    # print("----------------------------------------")
+    print(f"Extracted main of SQL command: {main_sql}")
+    print("----------------------------------------")
+    print(f"Extracted CTEs: {cte_dict}")
     # Initialize lists to store data
     table_data = []
     column_data = []
@@ -60,7 +61,9 @@ def process_sql_query_to_dfs(sql):
         
         # Append columns to the column_data list
         column_data.extend([(cte_name, alias, col) for alias, col in alias_column_pairs])
-        
+    
+    print("table_data:", table_data)
+    print("column_data:", column_data)    
     # Process main SQL command
     tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(main_sql)
     alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(main_sql)
@@ -75,6 +78,11 @@ def process_sql_query_to_dfs(sql):
     table_df = pd.DataFrame(table_data, columns=["Source", "Table Name", "Table Alias"])
     column_df = pd.DataFrame(column_data, columns=["Source", "Table Alias", "Column Name"])
     
+<<<<<<< HEAD
     inner_join_df_cte = pd.merge(table_df, column_df, on = ['Table Alias'], how ='inner')
     
     return inner_join_df_cte
+=======
+    output_df = pd.merge(table_df, column_df, on = ['Table Alias','Source'], how ='inner')
+    return output_df
+>>>>>>> 9e6069c7e546f0864a069557ab2f9b42c0aef0a5

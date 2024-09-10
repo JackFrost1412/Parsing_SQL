@@ -15,36 +15,29 @@ def read_sql_file(file_path):
 # sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\doc.sql'
 # sql_content = read_sql_file(sql_file_path)
 
-# df_tables_with_aliases, df_alias_column_pairs = Extract_Subselects.process_sql_with_source(sql_content)
+# output_df = Extract_Subselects.process_sql_with_source(sql_content)
 
 # # Display the DataFrames 
 # print("Extracted Sub-Selects:")
-# print("DataFrame of Table Names with Aliases:")
-# print(df_tables_with_aliases)
-
-# print("\nDataFrame of Table Aliases with Column Names:")
-# print(df_alias_column_pairs)
-# print("DataFrame of Table Name, Alias, Columns:")
-# inner_join_df_subselects = pd.merge(df_tables_with_aliases, df_alias_column_pairs, on = ['Table Alias','Source'], how ='inner')
-# print(inner_join_df_subselects)
+# print(output_df)
     
-# # Extract the SQL with CTEs from the SQL query
-# sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\CTE_with.sql' 
-# sql_ctes = read_sql_file(sql_file_path)
+# Extract the SQL with CTEs from the SQL query
+sql_file_path = r'E:\Parsing_SQL\SourceCode\Parsing_SQL\Input_SQL_command\sql(9).sql'
+sql_ctes = read_sql_file(sql_file_path)
    
-# formatted_sql = sqlparse.format(sql_ctes).upper()
+formatted_sql = sqlparse.format(sql_ctes).upper()
 
-# # Process the SQL query to get DataFrames
-# table_df, column_df = Extract_WITH_CTE.process_sql_query_to_dfs(formatted_sql)
+# Process the SQL query to get DataFrames
+inner_join_df_cte = Extract_WITH_CTE.process_sql_query_to_dfs(formatted_sql)
 
-# # Display the DataFrames
+# Display the DataFrames
 # print("Table Names and Aliases DataFrame:")
 # print(table_df)
-# # print("\nColumn Names and Aliases DataFrame:")
-# # print(column_df)
-# print("DataFrame of Table Name, Alias, Columns:")
+# print("\nColumn Names and Aliases DataFrame:")
+# print(column_df)
+print("DataFrame of Table Name, Alias, Columns:")
 # inner_join_df_cte = pd.merge(table_df, column_df, on = ['Source','Table Alias'], how ='inner')
-# print(inner_join_df_cte)
+print(inner_join_df_cte)
 
 # Extract simple SQL query
 # print("Extracted simple SQL query:")
@@ -80,7 +73,7 @@ def read_sql_file(file_path):
 # print("Done") 
 
 ## Extract the sub-selects from the SQL query
-sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\SQL_simple.sql'
-sql_content = read_sql_file(sql_file_path)
-output_df = Extract_Simple_SQL.process_simple_query(sql_content)
-print(output_df)
+# sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\SQL_simple.sql'
+# sql_content = read_sql_file(sql_file_path)
+# output_df = Extract_Simple_SQL.process_simple_query(sql_content)
+# print(output_df)

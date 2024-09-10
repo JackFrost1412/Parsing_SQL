@@ -1,6 +1,5 @@
 import sqlparse
 import pandas as pd
-import re
 from sqlparse.sql import IdentifierList, Identifier, Parenthesis
 from sqlparse.tokens import Keyword, DML
 import Extract_Nested_SQL
@@ -92,8 +91,13 @@ def process_sql_with_source(sql):
     df_tables_with_aliases = pd.DataFrame(all_tables_with_aliases, columns=['Source', 'Table Name', 'Table Alias'])
     df_alias_column_pairs = pd.DataFrame(all_alias_column_pairs, columns=['Source', 'Table Alias', 'Column Name'])
 
+<<<<<<< HEAD
     inner_join_df_subselects = pd.merge(df_tables_with_aliases, df_alias_column_pairs, on = ['Table Alias','Source'], how ='inner')
     
     return inner_join_df_subselects
+=======
+    output_df = pd.merge(df_tables_with_aliases, df_alias_column_pairs, on = ['Table Alias','Source'], how ='inner')
+    return output_df
+>>>>>>> 9e6069c7e546f0864a069557ab2f9b42c0aef0a5
 
 
