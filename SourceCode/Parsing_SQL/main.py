@@ -1,22 +1,24 @@
+import Extract_Simple_SQL
 import Extract_WITH_CTE
 import Extract_Subselects
 import pandas as pd
-import Extract_tbl_name
 
 # Điền tên file cần xử lý vào đây
-file_name = "BIDV_MIS_20240813_DMT_100_job"
+file_name = "JOB nghiệp vụ 2.11"
 
-file_input = fr"Output\SQL_Job_DS\{file_name}_SQLs.xlsx"
+file_input = fr"Output\SQL_Docx\{file_name}_SQLs.xlsx"
 file_output = fr"Output\Tables_Columns\{file_name}_TAB_COL.xlsx"
 
 df = pd.read_excel(file_input)
 
-result = pd.DataFrame(columns=['job', 'table_name', 'alias', 'column_name'])
+result = pd.DataFrame(columns=['Heading', 'Table', 'Alias', 'Column'])
 
-# Duyệt qua từng dòng và sử dụng extract_with_cte
+# Duyệt qua từng dòng và kiểm tra nếu câu truy vấn bắt đầu bằng WITH
 for index, row in df.iterrows():
-    job_name = row['Job Name']
+    heading = row['Heading']
     query = row['SQL Query']
+    has_join = row['Has JOIN']
+    print(has_join)
 
     # Gọi hàm extract_with_cte để lấy bảng và cột
     table_df, column_df = Extract_WITH_CTE.process_sql_query_to_dfs(query)
@@ -33,12 +35,16 @@ for index, row in df.iterrows():
         for _, col_row in related_columns.iterrows():
             column_name = col_row['Column Name']
             result = result._append({
-                'job': job_name,
-                'table_name': table_name,
-                'alias': table_alias,
-                'column_name': column_name
+                'Heading': heading,
+                'Table': table_name,
+                'Alias': table_alias,
+                'Column': column_name
             }, ignore_index=True)
 
+# Loại bỏ các dòng trùng lặp
 result = result.drop_duplicates()
 
-result.to_excel(file_output, index=False)
+# Xuất kết quả ra file Excel
+#result.to_excel(file_output, index=False)
+
+print(f"File Excel đã được lưu tại: {file_output}")
