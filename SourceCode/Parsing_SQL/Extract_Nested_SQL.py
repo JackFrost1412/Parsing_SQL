@@ -1,7 +1,7 @@
 import sqlparse
 import pandas as pd
 from sqlparse.sql import IdentifierList, Identifier
-from sqlparse.tokens import Keyword
+from sqlparse.tokens import Keyword, DML
 import re
 
 def extract_table_names_with_aliases(sql):
@@ -18,9 +18,9 @@ def extract_table_names_with_aliases(sql):
         for token in stmt.tokens:
             # print(f"Token: {token}, Type: {token.ttype}")
             # Update the context when encountering relevant keywords
-            if token.ttype is Keyword:
+            if token.ttype is Keyword or token.ttype is DML:
                 value = token.value.upper()
-                if value in ['WITH', 'JOIN', 'INTO']:
+                if value in ['WITH', 'JOIN', 'INTO', 'UPDATE']:
                     context = value
                 elif value in ['FROM', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN']:
                     context = 'JOIN'

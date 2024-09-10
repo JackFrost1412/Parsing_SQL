@@ -57,7 +57,7 @@ def read_sql_file(file_path):
     with open(file_path, 'r') as file:
         return file.read()
 # Extract the sub-selects from the SQL query
-sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\SQL_simple.sql'
+sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\Update.sql'
 sql_content = read_sql_file(sql_file_path)
 sql_commands = sqlparse.split(sql_content)
 # Initialize an empty list to collect rows for the DataFrame
