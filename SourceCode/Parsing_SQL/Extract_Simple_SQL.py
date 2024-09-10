@@ -67,20 +67,15 @@ for sql_command in sql_commands:
     # Extract unqualified column names
     unqualified_columns = extract_unqualified_columns_from_query(sql_command)
     # Extract table names and aliases
-    table_name = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
-    
-    # Create a row as a dictionary
-    row = {
-        'unqualified_columns': unqualified_columns,
-        'table_name': table_name
-    }
-    
-    # Append the row to the list
-    data.append(row)
+    table_names = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
+    # Extract the table name from list_1 (second element)
+    table_name = table_names[0][1]  # This will get 'TBL_BI_LC_RELEASE_SALES'
 
-# Create DataFrame from the collected data
+    # Create a list of dictionaries for the DataFrame
+    data = [{'table_name': table_name, 'column_name': col} for col in unqualified_columns]
+
+# Convert the list of dictionaries to a pandas DataFrame
 df = pd.DataFrame(data)
 
 # Show the DataFrame
 print(df)
-
