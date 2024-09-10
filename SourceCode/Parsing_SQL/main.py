@@ -6,8 +6,8 @@ import Extract_tbl_name
 # Điền tên file cần xử lý vào đây
 file_name = "BIDV_MIS_20240813_DMT_100_job"
 
-file_input = f"Output\\SQL_Job_DS\\{file_name}_SQLs.xlsx"
-file_output = f"Output\\Tables_Columns\\{file_name}_TAB_COL.xlsx"
+file_input = fr"Output\SQL_Job_DS\{file_name}_SQLs.xlsx"
+file_output = fr"Output\Tables_Columns\{file_name}_TAB_COL.xlsx"
 
 df = pd.read_excel(file_input)
 

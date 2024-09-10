@@ -1,7 +1,7 @@
 from Docx_Text import extract_sql_code
 
-file_input = 'Input/Docx/JOB nghiệp vụ 2.11.docx'
-file_output = 'Output/SQL_Docx/docx_text_queries.xlsx'
+file_input = fr"Input\Docx\JOB nghiệp vụ 2.11.docx"
+file_output = fr"Output\SQL_Docx\docx_text_queries.xlsx"
 
 # Đọc file Word và trích xuất SQL code vào DataFrame
 df_sql = extract_sql_code(file_input)
