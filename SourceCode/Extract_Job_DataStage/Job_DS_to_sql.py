@@ -15,7 +15,16 @@ def write_queries_to_file(job_name, queries, output_dir):
         for query in queries:
             file.write(query + "\n\n")  # Write each query followed by a newline
 
+def clear_directory(directory):
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
 def extract_jobs_to_sql(dsx_content, output_dir):
+    clear_directory(output_dir)
+    
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
