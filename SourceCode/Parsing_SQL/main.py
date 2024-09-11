@@ -57,7 +57,7 @@ import pandas as pd
 file_name = "JOB nghiệp vụ 2.11"
 
 file_input = fr"Output\SQL_Docx\{file_name}_SQLs.xlsx"
-file_output = fr"Output\Tables_Columns\{file_name}_TAB_COL.xlsx"
+file_output = fr"Output\SQL_Docx\{file_name}_TAB_COL.xlsx"
 
 df = pd.read_excel(file_input)
 
