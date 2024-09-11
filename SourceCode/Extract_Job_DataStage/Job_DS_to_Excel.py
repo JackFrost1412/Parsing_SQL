@@ -8,15 +8,15 @@ def remove_comments(sql):
     sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
     return sql
 
-def extract_jobs_and_sql(dsx_content):
+def extract_jobs_to_excel(dsx_content):
     # Tìm tất cả các job với tên và vị trí bắt đầu
     job_matches = re.finditer(r'BEGIN DSJOB.*?Identifier "(.*?)"', dsx_content, re.DOTALL)
     jobs = [(match.start(), match.group(1)) for match in job_matches]
 
     # Tìm tất cả các đoạn CDATA chứa câu truy vấn SQL với vị trí của chúng
     sql_matches = re.finditer(r'<!\[CDATA\[(.*?)\]\]>', dsx_content, re.DOTALL | re.IGNORECASE)
-    
     sql_queries = [(match.start(), match.group(1).strip()) for match in sql_matches]
+    
     job_queries = []
     
     # Duyệt qua từng câu truy vấn và gán nó vào job tương ứng
@@ -51,5 +51,5 @@ def extract_jobs_and_sql(dsx_content):
 
                 job_queries.append((job_name, cleaned_query))
                 break
-
+    
     return job_queries

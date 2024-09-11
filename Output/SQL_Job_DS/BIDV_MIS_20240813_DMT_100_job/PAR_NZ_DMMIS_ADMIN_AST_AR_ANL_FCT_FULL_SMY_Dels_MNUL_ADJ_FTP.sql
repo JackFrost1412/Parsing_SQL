@@ -1,0 +1,3 @@
+DELETE FROM AST_AR_ANL_FCT_FULL_SMY 
+WHERE tm_prd_dim_id in (select distinct TM_PRD_DIM_ID from TMP_AR_ANL_FCT_MNUL_DAILY);
+
