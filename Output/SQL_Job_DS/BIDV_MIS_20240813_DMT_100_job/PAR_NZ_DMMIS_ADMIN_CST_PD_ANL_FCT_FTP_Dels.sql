@@ -67,5 +67,8 @@ LEFT JOIN SRC_STM_DIM SRC_STM_DIM	ON SRC_STM_DIM.LVL_0_ID	= TWT.SRC_STM_ID AND T
 LEFT JOIN cst_pd_anl_fct_ftp_preday  PRE ON PRE.CST_ID = TWT.CST_ID    AND PRE.PD_ID = TWT.PD_ID 
 AND PRE.ORG_UNIT_ID = TWT.ORG_UNIT_ID   AND PRE.SRC_STM_DIM_ID = SRC_STM_DIM.SRC_STM_DIM_ID;
 
-DELETE FROM CST_PD_ANL_FCT_FTP where tm_prd_dim_id = :pDate:;
+delete from CST_PD_ANL_FCT_FTP where tm_prd_dim_id = :pDate:;
+
+insert into CST_PD_ANL_FCT_FTP 
+select * from CST_PD_ANL_FCT_FTP_DAILY;
 

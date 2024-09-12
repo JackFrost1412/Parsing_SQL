@@ -467,6 +467,5 @@ SELECT  ast_bal.LVL_1_ID		CST_AST_BAL_SEG_DIM_ID
        , CST_LIFE_CYC_ST_DIM_ID
        , CST_SEG_DIM_ID
        , CR_RSK_RTG_DIM_ID
-       , CST_SEG_SME_DIM_ID
-;
+       , CST_SEG_SME_DIM_ID;
 

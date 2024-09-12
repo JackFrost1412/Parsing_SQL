@@ -1,20 +1,21 @@
 import re
-import pandas as pd
 import os
 
+# Hàm lọc bỏ các comment
 def remove_comments(sql):
-    sql = re.sub(r'--.*?\n', '', sql)  # Remove single-line comments
-    sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)  # Remove multi-line comments
+    sql = re.sub(r'--.*?\n', '', sql)
+    sql = re.sub(r'/\*.*?\*/', '', sql, flags=re.DOTALL)
     return sql
 
+# Hàm ghi các truy vấn ra thành từng file
 def write_queries_to_file(job_name, queries, output_dir):
-    # Sanitize job_name to ensure it's a valid filename
     sanitized_job_name = re.sub(r'[\\/*?:"<>|]', '_', job_name)
     file_path = os.path.join(output_dir, f"{sanitized_job_name}.sql")
     with open(file_path, 'w', encoding='utf-8') as file:
         for query in queries:
-            file.write(query + "\n\n")  # Write each query followed by a newline
+            file.write(query + "\n\n")
 
+# Hàm truncate thư mục 
 def clear_directory(directory):
     if os.path.exists(directory):
         for filename in os.listdir(directory):
@@ -22,7 +23,9 @@ def clear_directory(directory):
             if os.path.isfile(file_path):
                 os.remove(file_path)
 
+# Hàm bóc tách các câu truy vấn từ các job
 def extract_jobs_to_sql(dsx_content, output_dir):
+    # Làm sạch thư mục lưu trữ
     clear_directory(output_dir)
     
     if not os.path.exists(output_dir):
@@ -36,21 +39,25 @@ def extract_jobs_to_sql(dsx_content, output_dir):
     
     job_queries_dict = {}
 
+    # Danh sách các từ khóa bắt đầu lọc câu truy vấn
+    sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE']
+
     # Process each query and assign it to the corresponding job
     for sql_pos, query in sql_queries:
         query = remove_comments(query)
         query = query.replace("#pDate#", ":pDate:")
 
-        sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH']
-        for keyword in sql_keywords:
-            if query.upper().startswith(keyword):
-                cleaned_query = re.sub(rf'^.*?\b{keyword}\b', keyword, query, flags=re.DOTALL | re.IGNORECASE)
-                cleaned_query = re.split(r';', cleaned_query)[0]  # Only keep part before first semicolon
+        # Tách các câu truy vấn theo dấu chấm phẩy
+        queries = re.split(r';', query)
+        queries = [q.strip() for q in queries if q.strip()]  # Lọc bỏ các câu rỗng và khoảng cách thừa
 
+        for cleaned_query in queries:
+            if any(cleaned_query.upper().startswith(keyword) for keyword in sql_keywords):
                 if not cleaned_query.endswith(';'):
                     cleaned_query += ';'
 
                 job_name = None
+                # Tìm ra tên job tương ứng với từng truy vấn
                 for i in range(len(jobs) - 1):
                     if jobs[i][0] <= sql_pos < jobs[i + 1][0]:
                         job_name = jobs[i][1]
@@ -58,14 +65,13 @@ def extract_jobs_to_sql(dsx_content, output_dir):
                 if job_name is None and jobs:
                     job_name = jobs[-1][1]
 
-                # Add query to the job's list in the dictionary
+                # Thêm các truy vấn vào job tương ứng của chúng
                 if job_name:
                     if job_name not in job_queries_dict:
                         job_queries_dict[job_name] = []
                     job_queries_dict[job_name].append(cleaned_query)
-                break
 
-    # Write each job's queries to a separate file
+    # Ghi từng job ra 1 file riêng biệt
     for job_name, queries in job_queries_dict.items():
         write_queries_to_file(job_name, queries, output_dir)
 

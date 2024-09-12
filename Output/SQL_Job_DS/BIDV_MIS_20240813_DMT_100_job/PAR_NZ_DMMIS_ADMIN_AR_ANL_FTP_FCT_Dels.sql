@@ -189,7 +189,10 @@ from AR_TVR_CLC_SMY_DAILY ar
 left join ast_ar_ftp_int_smy_daily ast_ar on ar.AR_ID = ast_ar.ar_id
 left join lby_ar_ftp_int_smy_daily lby_ar on ar.AR_ID = lby_ar.ar_id;
 
-DELETE FROM AR_ANL_FTP_FCT where TM_PRD_DIM_ID = :pDate:;
+delete from AR_ANL_FTP_FCT where TM_PRD_DIM_ID = :pDate:;
+
+insert into AR_ANL_FTP_FCT 
+select * from AR_ANL_FTP_FCT_DAILY;
 
 SELECT 	AR_DIM.AR_ID    		AR_ID, 
 		AR_DIM.AR_DIM_ID		AR_DIM_ID,
