@@ -1,8 +1,7 @@
 import sqlparse
 from sqlparse.sql import IdentifierList, Identifier, Comparison, Parenthesis, Function, Where
 from sqlparse.tokens import Keyword, DML
-import Extract_Nested_SQL
-import pandas as pd
+import Extract_Tbl_Col
 
 # Your flatten_tokens function
 def flatten_tokens(tokens):
@@ -52,25 +51,20 @@ def extract_unqualified_columns_from_query(sql_query):
     
     return columns
 
-def process_simple_query(sql_commands):
-    sql_commands = sqlparse.split(sql_commands)
+def process_simple_query(sql_command):
     # Initialize an empty list to collect rows for the DataFrame
-    data = []
+    table = []
+    column = []
     
     # Loop through each SQL command
-    for sql_command in sql_commands:
-        # Extract unqualified column names
-        unqualified_columns = extract_unqualified_columns_from_query(sql_command)
-        # Extract table names and aliases
-        table_names = Extract_Nested_SQL.extract_table_names_with_aliases(sql_command)
+    # Extract unqualified column names
+    unqualified_columns = extract_unqualified_columns_from_query(sql_command)
+    # Extract table names and aliases
+    table_names = Extract_Tbl_Col.extract_table_names_with_aliases(sql_command)
+    
+    # Extract the table name from list_1 (first element of table_names tuples
+    table.extend([("Main_SQL", table, alias) for table, alias in table_names])
+    column.extend([("Main_SQL", None, col) for col in unqualified_columns])
         
-        # Extract the table name from list_1 (first element of table_names tuple)
-        for table_name in table_names:
-            for column in unqualified_columns:
-                data.append({"Source": None,"Table Name": table_name[0],"Table Alias" : None , "Column Name": column})
-    
-    # Convert the list of dictionaries to a pandas DataFrame
-    df = pd.DataFrame(data)
-    
     # Return the DataFrame
-    return df
+    return table, column
