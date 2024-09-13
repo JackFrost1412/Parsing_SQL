@@ -66,7 +66,7 @@ def process_simple_query(sql_command):
     table.extend([("Main_SQL", table_name, table_name) for table_name, alias in table_names])
     
     for table_name in table_names:
-        print(f"Table Name: ", table)
+        #print(f"Table Name: ", table)
         columns_without_alias = [("Main_SQL", table_name[0], column) for column in unqualified_columns]
             
     column.extend(columns_without_alias)
