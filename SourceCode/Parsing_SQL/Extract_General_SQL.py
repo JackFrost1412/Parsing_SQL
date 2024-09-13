@@ -7,7 +7,7 @@ def extract_general_sql(sql_query):
     # Process main SQL command
     tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(sql_query)
     alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(sql_query)
-    col_without_alias_main = Extract_Tbl_Col.extract_columns_without_alias(sql_query)
+    col_without_alias_main = Extract_Tbl_Col.extract_column_names_without_dot(sql_query)
 
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
