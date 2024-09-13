@@ -92,9 +92,9 @@ def process_sql_sub_selects(sql):
     subselects_with_names, rest_of_sql = extract_subselects_and_rest(sql)  # Assume you have this function
     cleaned_subselects = clean_subselects(subselects_with_names)  # Assume you have this function
     reconstructed_sql = reconstruct_rest_of_sql(sql)
-    # for sub_select in cleaned_subselects: 
-    #     print(f"alias: {sub_select[0]}, sub-select: {sub_select[1]}")
-    # print(f"main_sql: \n",reconstructed_sql)
+    for sub_select in cleaned_subselects: 
+        print(f"alias: {sub_select[0]}, sub-select: {sub_select[1]}")
+    print(f"main_sql: \n",reconstructed_sql)
     # Prepare lists to store results
     all_tables_with_aliases = []
     all_alias_column_pairs = []
