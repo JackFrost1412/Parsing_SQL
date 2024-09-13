@@ -38,6 +38,7 @@ def extract_table_names_with_aliases(sql):
     return tables_with_aliases
 
 def extract_alias_column_pairs(sql):
+    # First clean the query from \(9) placeholders
     # Regular expression to match alias.column patterns
     pattern = re.compile(r'(\b\w+\b)\.(\b\w+\b)', re.IGNORECASE)
     columns = []
@@ -53,4 +54,43 @@ def extract_alias_column_pairs(sql):
             columns.append(alias + "." + column)
             tuples = [tuple(col.split('.', 1)) for col in columns]
     return tuples
+
+def extract_column_names_without_dot(sql_query):
+    # Parse the SQL query
+    parsed = sqlparse.parse(sql_query)
+    
+    # Initialize a set to store column names without dots
+    column_names = set()
+    
+    for stmt in parsed:
+        # Process each statement
+        tokens = [token for token in stmt.tokens if not token.is_whitespace]
+        inside_clause = None
+        
+        for token in tokens:
+            # Identify the clause context
+            if token.value.upper().startswith('SELECT'):
+                inside_clause = 'SELECT'
+            elif token.value.upper().startswith('WHERE'):
+                inside_clause = 'WHERE'
+            elif token.value.upper().startswith('GROUP BY'):
+                inside_clause = 'GROUP BY'
+            elif token.value.upper().startswith('ON'):
+                inside_clause = 'ON'
+            elif token.value.upper().startswith('UNION') or token.value.upper().startswith('UNION ALL'):
+                inside_clause = 'SELECT'  # Continue to extract columns after UNION
+            
+            # Extract column names based on the clause context
+            if inside_clause:
+                # Extract column names from token value
+                if token.ttype is None and not token.is_keyword:
+                    for subtoken in token.tokens:
+                        if subtoken.ttype is None and '.' not in subtoken.value:
+                            column_names.add(subtoken.value.strip())
+                
+                # Reset clause context after processing
+                if inside_clause and token.value.upper() in {'FROM', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'INNER JOIN', 'OUTER JOIN'}:
+                    inside_clause = None
+    
+    return list(column_names)
 

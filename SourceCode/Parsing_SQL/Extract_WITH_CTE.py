@@ -1,7 +1,6 @@
 import sqlparse
 from sqlparse.tokens import Keyword, DML, Keyword
-import Extract_Nested_SQL
-import pandas as pd
+import Extract_Tbl_Col
 
 def extract_ctes_and_rest(sql):
     parsed = sqlparse.parse(sql)[0]
@@ -40,7 +39,7 @@ def extract_ctes_and_rest(sql):
     return cte_dict, main_sql   
 
 # Example SQL with CTEs
-def process_sql_query_to_dfs(sql):
+def process_sql_with_ctes(sql):
     # Extract CTEs and main SQL command
     cte_dict, main_sql = extract_ctes_and_rest(sql)
     print(f"Extracted main of SQL command: {main_sql}")
@@ -53,36 +52,33 @@ def process_sql_query_to_dfs(sql):
     # Process CTEs
     for cte_name, cte_sql in cte_dict.items():
         # Extract tables and columns
-        tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(cte_sql)
-        alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(cte_sql)
+        tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(cte_sql)
+        alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(cte_sql)
+        col_without_alias = Extract_Tbl_Col.extract_column_names_without_dot(cte_sql)
         
         # Append tables to the table_data list
         table_data.extend([(cte_name, table, alias) for table, alias in tables_with_aliases])
         
         # Append columns to the column_data list
         column_data.extend([(cte_name, alias, col) for alias, col in alias_column_pairs])
-    
-    print("table_data:", table_data)
-    print("column_data:", column_data)    
+        # Append columns to the column_data list
+        column_data.extend([(cte_name, None, col) for  col in col_without_alias])
+        
     # Process main SQL command
-    tables_with_aliases = Extract_Nested_SQL.extract_table_names_with_aliases(main_sql)
-    alias_column_pairs = Extract_Nested_SQL.extract_alias_column_pairs(main_sql)
-    
+    tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(main_sql)
+    alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(main_sql)
+    col_without_alias_main = Extract_Tbl_Col.extract_column_names_without_dot(main_sql)
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
     
     # Append main SQL columns to the column_data list
     column_data.extend([("Main_SQL", alias, col) for alias, col in alias_column_pairs])
+    column_data.extend([("Main_SQL", None, col) for col in col_without_alias_main])
     
-    # Create DataFrames
-    table_df = pd.DataFrame(table_data, columns=["Source", "Table Name", "Table Alias"])
-    column_df = pd.DataFrame(column_data, columns=["Source", "Table Alias", "Column Name"])
+    # # Create DataFrames
+    # table_df = pd.DataFrame(table_data, columns=["Source", "Table Name", "Table Alias"])
+    # column_df = pd.DataFrame(column_data, columns=["Source", "Table Alias", "Column Name"])
     
-<<<<<<< HEAD
-    inner_join_df_cte = pd.merge(table_df, column_df, on = ['Table Alias'], how ='inner')
-    
-    return inner_join_df_cte
-=======
-    output_df = pd.merge(table_df, column_df, on = ['Table Alias','Source'], how ='inner')
-    return output_df
->>>>>>> 9e6069c7e546f0864a069557ab2f9b42c0aef0a5
+    # # Output DataFrames
+    # inner_join_df = pd.merge(table_df, column_df, on = ['Source','Table Alias'], how ='outer')
+    return table_data, column_data
