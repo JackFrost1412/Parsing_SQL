@@ -62,9 +62,14 @@ def process_simple_query(sql_command):
     # Extract table names and aliases
     table_names = Extract_Tbl_Col.extract_table_names_with_aliases(sql_command)
     
-    # Extract the table name from list_1 (first element of table_names tuples
-    table.extend([("Main_SQL", table, alias) for table, alias in table_names])
-    column.extend([("Main_SQL", None, col) for col in unqualified_columns])
+    # Extract the table name  (first element of table_names tuples)
+    table.extend([("Main_SQL", table_name, table_name) for table_name, alias in table_names])
+    
+    for table_name in table_names:
+        print(f"Table Name: ", table)
+        columns_without_alias = [("Main_SQL", table_name[0], column) for column in unqualified_columns]
+            
+    column.extend(columns_without_alias)
         
     # Return the DataFrame
     return table, column

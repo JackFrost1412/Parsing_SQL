@@ -4,12 +4,26 @@ import Extract_Simple_SQL
 import Extract_General_SQL
 import pandas as pd 
 import sqlparse
+import re
 
 def read_sql_file(file_path):
     
     with open(file_path, 'r') as file:
         return file.read()
     
+def clean_sql_query(sql):
+    """
+    Function to clean the SQL query by removing \(9) placeholders, single-line comments, 
+    and block comments.
+    """
+    # Remove \(9) placeholders
+    cleaned_query = re.sub(r'\\\(9\)', '', sql)
+    # Remove single-line comments (anything after --)
+    cleaned_query = re.sub(r'--.*', '', cleaned_query)
+    # Remove block comments (/* comment */)
+    cleaned_query = re.sub(r'/\*.*?\*/', '', cleaned_query, flags=re.DOTALL)
+    return cleaned_query
+   
 def main_extract_sql_command(file_path):
     """
     Main function to extract table and column names from an SQL query.
@@ -26,32 +40,38 @@ def main_extract_sql_command(file_path):
     
     
     sql_query = read_sql_file(file_path).upper()
+    cleaned_sql = clean_sql_query(sql_query)
 
     tables = []
     columns = []
     
     # Check if the query contains a WITH CTE clause
-    if "WITH" in sql_query:
-        formatted_sql = sqlparse.format(sql_query).upper()
+    if "WITH" in cleaned_sql:
+        print("Extract CTEs:")
+        formatted_sql = sqlparse.format(cleaned_sql).upper()
         tables_cte, columns_cte = Extract_WITH_CTE.process_sql_with_ctes(formatted_sql)
         tables.extend(tables_cte)
         columns.extend(columns_cte)
+        print(tables, columns)
     
     # Check if the query contains sub-selects
-    elif "SELECT" in sql_query and "(" in sql_query:
-        tables_subselect, columns_subselect = Extract_Subselects.process_sql_sub_selects(sql_query)
+    elif "SELECT" in cleaned_sql and "(" in cleaned_sql:
+        print("Extract sub-selects: ")
+        tables_subselect, columns_subselect = Extract_Subselects.process_sql_sub_selects(cleaned_sql)
         tables.extend(tables_subselect)
         columns.extend(columns_subselect)
     
     # Check if the query contains no JOIN clause
-    elif "JOIN" not in sql_query:
-        tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(sql_query)
+    elif "JOIN" not in cleaned_sql:
+        print("Extract simple SQL: ")
+        tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
         tables.extend(tables_no_join)
         columns.extend(columns_no_join)
     
     # For any other type of SQL query
     else:
-        tables_all, columns_all = Extract_General_SQL.extract_general_sql(sql_query)
+        print("Extract general SQL: ")
+        tables_all, columns_all = Extract_General_SQL.extract_general_sql(cleaned_sql)
         tables.extend(tables_all)
         columns.extend(columns_all)
     
