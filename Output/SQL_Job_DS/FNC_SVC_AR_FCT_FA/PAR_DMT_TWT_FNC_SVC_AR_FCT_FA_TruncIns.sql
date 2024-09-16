@@ -1,4 +1,4 @@
-SELECT
+select
 chg.AC_AR_ID
 ,decode(CHG.MUD, 'OD', ABS(CLS_VAL_BAL_FCY*CHG.ADJ_BAL), CLS_VAL_BAL_FCY*CHG.ADJ_BAL)	CLS_BAL_FCY   
 ,decode(CHG.MUD, 'OD', ABS(CLS_VAL_BAL_LCY*CHG.ADJ_BAL), CLS_VAL_BAL_LCY*CHG.ADJ_BAL)	CLS_BAL_LCY
@@ -244,7 +244,7 @@ AND AU.ACG_STC_ITM_ID IN (select function_hash02('GL' || '|' || 'FCC.GLTM_GLMAST
 from EXT_FCC_jrtb_parameters a where a.srv_id = 'GL023CB')
 AND ACG_TP_ID = '6BD323629A5B4A768A50D4F091BB2952' -- CUST_GL = 'G';
 
-SELECT
+select
 	chg.ac_ar_id,
 	axr.EFF_RATE_PCT	INT_RATE
 from TWT_FNC_SVC_AR_ANL_FCT_FA_CHG chg

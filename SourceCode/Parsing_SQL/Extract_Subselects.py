@@ -3,7 +3,7 @@ import pandas as pd
 import re
 from sqlparse.sql import IdentifierList, Identifier, Parenthesis
 from sqlparse.tokens import Keyword, DML
-import Extract_Tbl_Col
+import SourceCode.Parsing_SQL.Extract_Tbl_Col as Extract_Tbl_Col
 
 def extract_subselects_and_rest(sql):
     parsed = sqlparse.parse(sql)

@@ -84,9 +84,6 @@ def extract_sql_code(docx_file):
 
     # Tạo DataFrame từ danh sách sql_data
     df = pd.DataFrame(sql_data, columns=['Heading', 'SQL Query'])
-
-    # Thêm cột 'Has JOIN' để đánh dấu câu lệnh có 'JOIN'
-    df['Has JOIN'] = df['SQL Query'].str.contains(r'\bJOIN\b', case=False, na=False)
     
     return df
 
