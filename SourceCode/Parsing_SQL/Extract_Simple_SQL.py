@@ -1,7 +1,7 @@
 import sqlparse
 from sqlparse.sql import IdentifierList, Identifier, Comparison, Parenthesis, Function, Where
 from sqlparse.tokens import Keyword, DML
-import Extract_Tbl_Col
+import SourceCode.Parsing_SQL.Extract_Tbl_Col as Extract_Tbl_Col
 
 # Your flatten_tokens function
 def flatten_tokens(tokens):
@@ -64,6 +64,8 @@ def process_simple_query(sql_command):
     
     # Extract the table name  (first element of table_names tuples)
     table.extend([("Main_SQL", table_name, table_name) for table_name, alias in table_names])
+    
+    columns_without_alias = []
     
     for table_name in table_names:
         #print(f"Table Name: ", table)

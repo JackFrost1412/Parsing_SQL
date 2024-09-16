@@ -1,4 +1,4 @@
-import Extract_Tbl_Col
+import SourceCode.Parsing_SQL.Extract_Tbl_Col as Extract_Tbl_Col
 
 def extract_general_sql(sql_query):
     table_data = []

@@ -1,6 +1,6 @@
 import sqlparse
 from sqlparse.tokens import Keyword, DML, Keyword
-import Extract_Tbl_Col
+import SourceCode.Parsing_SQL.Extract_Tbl_Col as Extract_Tbl_Col
 
 def extract_ctes_and_rest(sql):
     parsed = sqlparse.parse(sql)[0]

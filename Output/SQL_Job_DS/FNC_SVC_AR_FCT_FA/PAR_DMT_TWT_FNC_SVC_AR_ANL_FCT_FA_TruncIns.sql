@@ -1,4 +1,4 @@
-WITH TMP_MAX_BY_CST as
+with TMP_MAX_BY_CST as
 (
 SELECT
     CST_ID

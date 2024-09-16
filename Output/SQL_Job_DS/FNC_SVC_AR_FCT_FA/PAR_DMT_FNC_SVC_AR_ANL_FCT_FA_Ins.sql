@@ -252,5 +252,5 @@ WHERE LST.CDR_DT_DIM_ID = to_number(to_char(to_date(#pdate#, 'yyyymmdd') - 1, 'y
 		WHERE T.AC_AR_ID = AC.AC_AR_ID
 		);
 
-DELETE FROM FNC_SVC_AR_ANL_FCT_FA where CDR_DT_DIM_ID = #pdate#;
+Delete from FNC_SVC_AR_ANL_FCT_FA where CDR_DT_DIM_ID = #pdate#;
 

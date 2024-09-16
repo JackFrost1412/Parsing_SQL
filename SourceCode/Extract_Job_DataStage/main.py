@@ -1,6 +1,6 @@
 import pandas as pd
-from Job_DS_to_Excel import extract_jobs_to_excel
-from Job_DS_to_sql import extract_jobs_to_sql
+from SourceCode.Extract_Job_DataStage.Job_DS_to_Excel import extract_jobs_to_excel
+from SourceCode.Extract_Job_DataStage.Job_DS_to_sql import extract_jobs_to_sql
 
 # Xuất file Job dưới dạng Excel
 def job_to_excel(file_name):
@@ -36,8 +36,8 @@ def job_to_txt(file_name):
     print(f"Xử lý file {file_name}.dsx thành công.")
 
 # Điền tên file cần xử lý 
-file_name = "BIDV_MIS_20240813_DMT_100_job"
+# file_name = "BIDV_MIS_20240813_DMT_100_job"
 
 #job_to_excel(file_name)
 
-job_to_txt(file_name)
+#job_to_txt(file_name)

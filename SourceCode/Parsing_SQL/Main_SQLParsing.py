@@ -1,7 +1,7 @@
-import Extract_Subselects
-import Extract_WITH_CTE
-import Extract_Simple_SQL
-import Extract_General_SQL
+import SourceCode.Parsing_SQL.Extract_Subselects as Extract_Subselects
+import SourceCode.Parsing_SQL.Extract_WITH_CTE as Extract_WITH_CTE
+import SourceCode.Parsing_SQL.Extract_Simple_SQL as Extract_Simple_SQL
+import SourceCode.Parsing_SQL.Extract_General_SQL as Extract_General_SQL
 import pandas as pd 
 import sqlparse
 import re
@@ -24,7 +24,7 @@ def clean_sql_query(sql):
     cleaned_query = re.sub(r'/\*.*?\*/', '', cleaned_query, flags=re.DOTALL)
     return cleaned_query
    
-def main_extract_sql_command(file_path):
+def main_extract_sql_command(sql_query):
     """
     Main function to extract table and column names from an SQL query.
     
@@ -39,8 +39,7 @@ def main_extract_sql_command(file_path):
     """
     
     
-    sql_query = read_sql_file(file_path).upper()
-    cleaned_sql = clean_sql_query(sql_query)
+    cleaned_sql = clean_sql_query(sql_query).upper()
 
     tables = []
     columns = []
