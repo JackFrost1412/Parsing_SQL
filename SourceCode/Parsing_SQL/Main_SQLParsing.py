@@ -33,7 +33,7 @@ def has_subselect(sql_query):
         return True
     return False
 
-def main_extract_sql_command(sql_query): 
+def main_extract_sql_command(sql_query):
     cleaned_sql = clean_sql_query(sql_query).upper()
 
     tables = []
@@ -49,7 +49,7 @@ def main_extract_sql_command(sql_query):
         #print(tables, columns)
     
     # Check if the query contains sub-selects
-    elif "SELECT" in cleaned_sql and "(" in cleaned_sql:
+    elif has_subselect(cleaned_sql):
         #print("Extract sub-selects: ")
         tables_subselect, columns_subselect = Extract_Subselects.process_sql_sub_selects(cleaned_sql)
         tables.extend(tables_subselect)
