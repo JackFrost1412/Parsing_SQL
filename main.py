@@ -12,6 +12,9 @@ file = config['files']['file_name']
 
 file_name, extension = os.path.splitext(file)
 
+all_table_df = []
+all_inner_join_df = []
+
 if extension == ".dsx":
     # Xuất ra file chứa các câu truy vấn
     job_to_excel(file_name)
@@ -20,9 +23,6 @@ if extension == ".dsx":
     # Tạo đường dẫn tới file Excel để lưu kết quả
     file_input = fr"Output\SQL_Job_DS\{file_name}"
     file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
-
-    all_table_df = []
-    all_inner_join_df = []
 
     # Duyệt qua từng file .sql trong thư mục
     for filename in os.listdir(file_input):
@@ -70,9 +70,6 @@ else:
     file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
     
     df = pd.read_excel(file_input)
-    
-    all_table_df = []
-    all_inner_join_df = []
     
     # Duyệt qua từng dòng trong DataFrame
     for index, row in df.iterrows():
