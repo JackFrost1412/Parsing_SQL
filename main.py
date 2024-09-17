@@ -35,7 +35,7 @@ if extension == ".dsx":
                     
                 # Gọi hàm main_extract_sql_command để xử lý câu truy vấn
                 table_df, inner_join_df = main_extract_sql_command(sql_query)
-                
+
                 # Ghi table_df và inner_join_df vào file Excel với tên sheet tương ứng
                 table_sheet_name = f"Table Name_Alias"
                 full_table_sheet_name = f"Full_Table"
@@ -61,7 +61,7 @@ else:
 
             # Gọi hàm main_extract_sql_command để xử lý câu truy vấn SQL
             table_df, inner_join_df = main_extract_sql_command(sql_query)
-            print(table_df)
+
             # Tạo tên sheet cho các kết quả
             table_sheet_name = f"Table_Alias"
             full_table_sheet_name = f"Full_Table"
