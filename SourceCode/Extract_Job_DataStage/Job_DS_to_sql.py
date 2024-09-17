@@ -45,7 +45,9 @@ def extract_jobs_to_sql(dsx_content, output_dir):
     # Process each query and assign it to the corresponding job
     for sql_pos, query in sql_queries:
         query = remove_comments(query)
-        query = query.replace("#pDate#", ":pDate:")
+        
+        # Sử dụng re.sub để thay thế cả #pDate# và #pdate# bằng :pdate:
+        query = re.sub(r'#pDate#|#pdate#', ':pdate:', query)
 
         # Tách các câu truy vấn theo dấu chấm phẩy
         queries = re.split(r';', query)

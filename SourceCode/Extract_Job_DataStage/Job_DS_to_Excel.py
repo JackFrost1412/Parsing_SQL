@@ -23,8 +23,8 @@ def extract_jobs_to_excel(dsx_content):
         # Loại bỏ comment trong câu truy vấn
         query = remove_comments(query)
         
-        # Thay thế #pDate# thành :pDate:
-        query = query.replace("#pDate#", ":pDate:")
+        # Sử dụng re.sub để thay thế cả #pDate# và #pdate# bằng :pdate:
+        query = re.sub(r'#pDate#|#pdate#', ':pdate:', query)
         
         # Chỉ lấy những câu truy vấn bắt đầu bằng từ khóa SQL chính xác
         sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE']
