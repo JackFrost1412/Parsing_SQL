@@ -54,10 +54,6 @@ if extension == ".dsx":
     final_table_df = pd.concat(all_table_df, ignore_index=True).drop_duplicates()
     final_inner_join_df = pd.concat(all_inner_join_df, ignore_index=True).drop_duplicates()
     
-    # # Lọc các giá trị trùng lặp
-    # final_table_df = final_table_df.drop_duplicates()
-    # final_inner_join_df = final_inner_join_df.drop_duplicates()
-    
     with pd.ExcelWriter(file_output) as writer:
         table_sheet_name = f"Table Name_Alias"
         full_table_sheet_name = f"Full_Table"
@@ -93,12 +89,8 @@ else:
         inner_join_df['Heading'] = heading
         all_inner_join_df.append(inner_join_df)
     
-    final_table_df = pd.concat(all_table_df, ignore_index=True)
-    final_inner_join_df = pd.concat(all_inner_join_df, ignore_index=True)
-    
-    # Lọc các giá trị trùng lặp
-    final_table_df = final_table_df.drop_duplicates()
-    final_inner_join_df = final_inner_join_df.drop_duplicates()
+    final_table_df = pd.concat(all_table_df, ignore_index=True).drop_duplicates()
+    final_inner_join_df = pd.concat(all_inner_join_df, ignore_index=True).drop_duplicates()
     
     with pd.ExcelWriter(file_output) as writer:
             # Tạo tên sheet cho các kết quả
