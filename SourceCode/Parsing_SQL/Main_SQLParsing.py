@@ -12,10 +12,6 @@ def read_sql_file(file_path):
         return file.read()
     
 def clean_sql_query(sql):
-    """
-    Function to clean the SQL query by removing \(9) placeholders, single-line comments, 
-    and block comments.
-    """
     # Remove \(9) placeholders
     cleaned_query = re.sub(r'\\\(9\)', '', sql)
     # Remove single-line comments (anything after --)
@@ -23,22 +19,21 @@ def clean_sql_query(sql):
     # Remove block comments (/* comment */)
     cleaned_query = re.sub(r'/\*.*?\*/', '', cleaned_query, flags=re.DOTALL)
     return cleaned_query
-   
-def main_extract_sql_command(sql_query):
+
+def has_subselect(sql_query):
     """
-    Main function to extract table and column names from an SQL query.
-    
-    This function determines the type of SQL query (WITH CTE, sub-select, no JOIN, or general query)
-    and calls the appropriate helper functions to extract table and column names.
-    
-    Args:
-        sql_query (str): The SQL query string to be parsed.
-    
-    Returns:
-        dict: A dictionary containing table names and column names.
+    Check if a SQL query contains a sub-select by looking for patterns where
+    an opening parenthesis '(' is followed by the keyword 'SELECT'.
     """
+    # Define a regex to detect '(SELECT ...)' patterns
+    subselect_pattern = re.compile(r'\(\s*SELECT', re.IGNORECASE)
     
-    
+    # Search for the pattern in the SQL query
+    if subselect_pattern.search(sql_query):
+        return True
+    return False
+
+def main_extract_sql_command(sql_query): 
     cleaned_sql = clean_sql_query(sql_query).upper()
 
     tables = []
