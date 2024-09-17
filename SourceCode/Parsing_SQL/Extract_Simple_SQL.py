@@ -38,7 +38,7 @@ def extract_unqualified_columns(tokens):
             if isinstance(token, Identifier):
                 columns.append(token.get_real_name())
             elif isinstance(token, Comparison):
-                columns.append(token.left.get_real_name())
+                columns.append(token.left._get_repr_name())
 
     return columns
 
