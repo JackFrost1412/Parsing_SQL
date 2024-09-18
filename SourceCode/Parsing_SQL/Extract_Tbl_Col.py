@@ -98,11 +98,11 @@ def extract_columns_without_dot(sql):
             process_token(token)
         elif token.ttype is Keyword and token.value.upper() in ('GROUP BY', 'ORDER BY'):
             next_token = parsed.token_next(parsed.token_index(token))[1]
-            print("GROUP/ORDER BY clause found:", next_token)
+            #print("GROUP/ORDER BY clause found:", next_token)
             if next_token:
                 process_token(next_token)
         elif isinstance(token, Where): 
-            print(f"WHERE clause found: {token}")
+            # print(f"WHERE clause found: {token}")
             for t in token.tokens:
                 # Check if the token is an Identifier or Comparison
                 if isinstance(t, Comparison):
