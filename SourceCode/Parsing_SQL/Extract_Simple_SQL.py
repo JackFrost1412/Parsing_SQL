@@ -38,17 +38,20 @@ def extract_unqualified_columns(tokens):
             if isinstance(token, Identifier):
                 columns.append(token.get_real_name())
             elif isinstance(token, Comparison):
-                columns.append(token.left._get_repr_name())
+                if isinstance(token.left, Identifier):
+                    columns.append(token.left.get_real_name())
+                if isinstance(token.right, Identifier):
+                    columns.append(token.right.get_real_name())
 
     return columns
 
 # Main function to parse SQL and extract unqualified columns
 def extract_unqualified_columns_from_query(sql_query):
     parsed = sqlparse.parse(sql_query)[0]
-    
+
     # Pass the entire set of tokens through the flatten_tokens generator
     columns = extract_unqualified_columns(parsed.tokens)
-    
+
     return columns
 
 def process_simple_query(sql_command):
@@ -71,7 +74,6 @@ def process_simple_query(sql_command):
         #print(f"Table Name: ", table)
         columns_without_alias = [("Main_SQL", table_name[0], column) for column in unqualified_columns]
             
-    column.extend(columns_without_alias)
-        
+    column.extend(columns_without_alias)  
     # Return the DataFrame
     return table, column

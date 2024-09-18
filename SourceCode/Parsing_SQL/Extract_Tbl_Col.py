@@ -16,7 +16,7 @@ def extract_table_names_with_aliases(sql):
         context = None
         
         for token in stmt.tokens:
-            # print(f"Token: {token}, Type: {token.ttype}")
+            # print(f"Token: {token}, Ttype; {token.ttype}, Type: {type(token)}")
             # Update the context when encountering relevant keywords
             if token.ttype is Keyword or token.ttype is DML:
                 value = token.value.upper()
