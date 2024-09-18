@@ -1,7 +1,7 @@
 import sqlparse
 import pandas as pd
 from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML
+from sqlparse.tokens import Keyword, DML, Name
 import re
 
 def extract_table_names_with_aliases(sql):
@@ -74,10 +74,10 @@ def extract_columns_without_dot(sql):
                 process_token(identifier)
         elif isinstance(token, Comparison):
             for t in token.tokens:
-                print(f"Comparison found:", t)
-        elif isinstance(token, Where):
-            for t in token.tokens:
-                process_token(t)
+                if t.ttype is Name:
+                    columns.append(t.value)
+                else:
+                    process_token(t)
 
     def process_function(func_token):
         for arg in func_token.get_parameters():
@@ -98,7 +98,7 @@ def extract_columns_without_dot(sql):
             process_token(token)
         elif token.ttype is Keyword and token.value.upper() in ('GROUP BY', 'ORDER BY'):
             next_token = parsed.token_next(parsed.token_index(token))[1]
-            #print("GROUP/ORDER BY clause found:", next_token)
+            # print("GROUP/ORDER BY clause found:", next_token)
             if next_token:
                 process_token(next_token)
         elif isinstance(token, Where): 
