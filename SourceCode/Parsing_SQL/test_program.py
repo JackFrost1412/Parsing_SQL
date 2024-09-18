@@ -1,7 +1,7 @@
 import Main_SQLParsing
 import pandas as pd
 
-sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\SQL_simple.sql'
+sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\sql(9).sql'
 
 with open(sql_file_path, 'r') as file:
     sql_content = file.read()
