@@ -16,12 +16,14 @@ def clean_sql_query(sql):
     Function to clean the SQL query by removing \(9) placeholders, single-line comments, 
     and block comments.
     """
+    cleaned_query = sqlparse.format(sql, reindent = True, keyword_case = 'upper')
     # Remove \(9) placeholders
-    cleaned_query = re.sub(r'\\\(9\)', '', sql)
+    cleaned_query = re.sub(r'\\\(9\)', '', cleaned_query)
     # Remove single-line comments (anything after --)
     cleaned_query = re.sub(r'--.*', '', cleaned_query)
     # Remove block comments (/* comment */)
     cleaned_query = re.sub(r'/\*.*?\*/', '', cleaned_query, flags=re.DOTALL)
+    
     return cleaned_query
 def has_subselect(sql_query):
     """
@@ -35,6 +37,7 @@ def has_subselect(sql_query):
     if subselect_pattern.search(sql_query):
         return True
     return False
+
    
 def main_extract_sql_command(file_path):
     """
@@ -92,5 +95,5 @@ def main_extract_sql_command(file_path):
     
     # Output DataFrames
     inner_join_df = pd.merge(table_df, column_df, on = ['Source','Table Alias'], how ='outer')
-    
+    inner_join_df = inner_join_df.drop_duplicates()
     return table_df, inner_join_df 
