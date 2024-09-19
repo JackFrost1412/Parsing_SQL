@@ -19,7 +19,7 @@ def job_to_excel(file_name):
 
     df.to_excel(file_output, index=False)
 
-    print(f"Đã xử lý file {file_name}.dsx thành dạng Excel.")
+    print(f"File Excel các câu truy vấn đã được lưu tại: {file_output}.")
 
 
 # Xuất file Job dưới dạng thư mục chứa các file .sql
@@ -33,7 +33,7 @@ def job_to_txt(file_name):
 
     extract_jobs_to_sql(dsx_content, output)
 
-    print(f"Đã xử lý file {file_name}.dsx thành dạng .sql.")
+    print(f"Files các câu truy vấn đã được lưu tại thư mục: {output}.")
 
 # Điền tên file cần xử lý 
 # file_name = "BIDV_MIS_20240813_DMT_100_job"

@@ -60,7 +60,8 @@ if extension == ".dsx":
         
         final_table_df.to_excel(writer, sheet_name=table_sheet_name, index=False)
         final_inner_join_df.to_excel(writer, sheet_name=full_table_sheet_name, index=False)
-
+    
+    print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
 else:
     # Xuất ra file Excel chứa các câu truy vấn
     docx_to_excel(file_name)
@@ -97,5 +98,7 @@ else:
             # Ghi table_df và inner_join_df vào các sheet tương ứng trong file Excel
             final_table_df.to_excel(writer, sheet_name=table_sheet_name, index=False)
             final_inner_join_df.to_excel(writer, sheet_name=full_table_sheet_name, index=False)
+    
+    print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
     
 print("Done")
