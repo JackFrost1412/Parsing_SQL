@@ -1,6 +1,6 @@
 import sqlparse
 import pandas as pd
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
+from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison, Parenthesis
 from sqlparse.tokens import Keyword, DML, Name
 import re
 
@@ -58,7 +58,19 @@ def extract_alias_column_pairs(sql):
     return tuples
 
 def extract_columns_without_dot(sql):
-    parsed = sqlparse.parse(sql.upper())[0]
+    # Check if the SQL command is None or empty
+    if not sql or not sql.strip():
+        return []  # Return an empty list for empty or None SQL input
+    
+    # Parse the SQL statement
+    parsed = sqlparse.parse(sql.upper())
+    
+    # If only a single SQL statement is passed, grab the first one
+    if parsed and len(parsed) == 1:
+        parsed_statement = parsed[0]
+    else:
+        return []  # Return an empty list if no valid statement is found
+    
     columns = []
 
     def process_token(token):
@@ -87,7 +99,7 @@ def extract_columns_without_dot(sql):
                 process_function(arg)
 
     select_seen = False
-    for token in parsed.tokens:
+    for token in parsed_statement.tokens:
         if token.ttype is DML and token.value.upper() == 'SELECT':
             select_seen = True
             continue
@@ -97,27 +109,32 @@ def extract_columns_without_dot(sql):
                 continue
             process_token(token)
         elif token.ttype is Keyword and token.value.upper() in ('GROUP BY', 'ORDER BY'):
-            next_token = parsed.token_next(parsed.token_index(token))[1]
-            # print("GROUP/ORDER BY clause found:", next_token)
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
             if next_token:
                 process_token(next_token)
-        elif isinstance(token, Where): 
-            # print(f"WHERE clause found: {token}")
+        elif isinstance(token, Where):
             for t in token.tokens:
-                # Check if the token is an Identifier or Comparison
                 if isinstance(t, Comparison):
-                    # print("Comparison found in WHERE clause:", t)
                     for sub_token in t.tokens:
                         if isinstance(sub_token, Identifier):
-                            # print("Column found in WHERE clause:", sub_token.get_real_name())
                             process_token(sub_token)
                         elif sub_token.ttype == sqlparse.tokens.Literal:
-                            # print("Literal value in WHERE clause:", sub_token)
                             process_token(sub_token)
+                elif t.ttype is Keyword and t.value.upper() == 'AND':
+                    next_token = token.token_next(token.token_index(t))[1]
+                    process_token(next_token)
+                elif isinstance(t, Identifier):
+                    print("Column found in WHERE clause:", t.get_real_name())
+                elif isinstance(t, Parenthesis):
+                    for inner_token in t.tokens:
+                        process_token(inner_token)
                 else:
                     process_token(t)
         elif token.ttype is Keyword and token.value.upper() in ('ON', 'AND'):
-            next_token = parsed.token_next(parsed.token_index(token))[1]
-            # print(f"ON clause found: ",next_token)
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
+            process_token(next_token)
+
     return list(set(col for col in columns if col))
+
+
 
