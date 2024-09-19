@@ -123,8 +123,8 @@ def extract_columns_without_dot(sql):
                 elif t.ttype is Keyword and t.value.upper() == 'AND':
                     next_token = token.token_next(token.token_index(t))[1]
                     process_token(next_token)
-                elif isinstance(t, Identifier):
-                    print("Column found in WHERE clause:", t.get_real_name())
+                # elif isinstance(t, Identifier):
+                #     # print("Column found in WHERE clause:", t.get_real_name())
                 elif isinstance(t, Parenthesis):
                     for inner_token in t.tokens:
                         process_token(inner_token)
