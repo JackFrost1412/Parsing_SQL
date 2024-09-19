@@ -40,7 +40,20 @@ def has_subselect(sql_query):
     return False
    
 def main_extract_sql_command(sql_query):
-    cleaned_sql = clean_sql_query(sql_query)
+    """
+    Main function to extract table and column names from an SQL query.
+    
+    This function determines the type of SQL query (WITH CTE, sub-select, no JOIN, or general query)
+    and calls the appropriate helper functions to extract table and column names.
+    
+    Args:
+        sql_query (str): The SQL query string to be parsed.
+    
+    Returns:
+        dict: A dictionary containing table names and column names.
+    """   
+    
+    cleaned_sql = clean_sql_query(sql_query).upper()
 
     tables = []
     columns = []
