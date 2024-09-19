@@ -12,7 +12,6 @@ def read_sql_file(file_path):
         return file.read()
     
 def clean_sql_query(sql):
-
     cleaned_query = sqlparse.format(sql, reindent = True, keyword_case = 'upper')
     # Remove \(9) placeholders
     cleaned_query = re.sub(r'\\\(9\)', '', cleaned_query)
@@ -35,7 +34,7 @@ def has_subselect(sql_query):
     if subselect_pattern.search(sql_query):
         return True
     return False
-   
+
 def main_extract_sql_command(sql_query):
     """
     Main function to extract table and column names from an SQL query.
