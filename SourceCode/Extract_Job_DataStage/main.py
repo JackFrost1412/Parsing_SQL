@@ -9,8 +9,11 @@ def job_to_excel(file_name):
     file_output = fr"Output\SQL_Job_DS\{file_name}_SQLs.xlsx"
 
     # Đọc nội dung của file .dsx
-    with open(file_input, 'r', encoding='utf-8', errors='replace') as file:
-        dsx_content = file.read()
+    try:
+        with open(file_input, 'r', encoding='utf-8', errors='replace') as file:
+            dsx_content = file.read()
+    except FileNotFoundError as e:
+        print(f"File {file_input} không tồn tại: {e}")
 
     # Gọi hàm để trích xuất tên job và các truy vấn SQL
     job_queries = extract_jobs_to_excel(dsx_content)
@@ -28,8 +31,11 @@ def job_to_txt(file_name):
     file_input = fr"Input\Job_DataStage\{file_name}.dsx"
     output = fr"Output\SQL_Job_DS\{file_name}" 
 
-    with open(file_input, 'r', encoding='utf-8', errors='replace') as file:
-        dsx_content = file.read()
+    try:
+        with open(file_input, 'r', encoding='utf-8', errors='replace') as file:
+            dsx_content = file.read()
+    except FileNotFoundError as e:
+        print(f"File {file_input} không tồn tại: {e}")
 
     extract_jobs_to_sql(dsx_content, output)
 
