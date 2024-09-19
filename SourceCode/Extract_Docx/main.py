@@ -11,7 +11,7 @@ def docx_to_excel(file_name):
     # Xuất file Excel (không cần tham số encoding)
     df_sql.to_excel(file_output, index=False)
     
-    print(f"File Excel đã được lưu tại: {file_output}")
+    print(f"File Excel các câu truy vấn đã được lưu tại: {file_output}.")
 
 # Điền tên file cần xử lý vào đây
 # file_name = "JOB nghiệp vụ 2.11"
