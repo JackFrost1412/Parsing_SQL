@@ -89,15 +89,15 @@ else:
     
     final_table_df = pd.concat(all_table_df, ignore_index=True).drop_duplicates()
     final_inner_join_df = pd.concat(all_inner_join_df, ignore_index=True).drop_duplicates()
-    
+
     with pd.ExcelWriter(file_output) as writer:
-            # Tạo tên sheet cho các kết quả
-            table_sheet_name = f"Table_Alias"
-            full_table_sheet_name = f"Full_Table"
-            
-            # Ghi table_df và inner_join_df vào các sheet tương ứng trong file Excel
-            final_table_df.to_excel(writer, sheet_name=table_sheet_name, index=False)
-            final_inner_join_df.to_excel(writer, sheet_name=full_table_sheet_name, index=False)
+        # Tạo tên sheet cho các kết quả
+        table_sheet_name = f"Table_Alias"
+        full_table_sheet_name = f"Full_Table"
+        
+        # Ghi table_df và inner_join_df vào các sheet tương ứng trong file Excel
+        final_table_df.to_excel(writer, sheet_name=table_sheet_name, index=False)
+        final_inner_join_df.to_excel(writer, sheet_name=full_table_sheet_name, index=False)
     
     print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
     
