@@ -1,109 +1,100 @@
 import sqlparse
-from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison
-from sqlparse.tokens import Keyword, DML
-
+import pandas as pd
+from sqlparse.sql import IdentifierList, Identifier, Function, Where, Comparison, Parenthesis
+from sqlparse.tokens import Keyword, DML, Name
+import re
 def extract_columns_without_dot(sql):
-    # List of aggregate functions
-    aggregate_functions = {'SUM', 'COUNT', 'AVG', 'MIN', 'MAX', 'NVL'}
+    # Check if the SQL command is None or empty
+    if not sql or not sql.strip():
+        return []  # Return an empty list for empty or None SQL input
     
+    # Parse the SQL statement
+    parsed = sqlparse.parse(sql.upper())
     
-    # Parse the SQL query
-    sql_formatted = sql.upper()
-    parsed = sqlparse.parse(sql_formatted)[0]
+    # If only a single SQL statement is passed, grab the first one
+    if parsed and len(parsed) == 1:
+        parsed_statement = parsed[0]
+    else:
+        return []  # Return an empty list if no valid statement is found
     
     columns = []
 
-    # Function to recursively process tokens
-    def process_tokens(tokens):
-        for token in tokens:
-            # Skip whitespace and punctuation tokens
-            if token.is_whitespace or token.ttype in (sqlparse.tokens.Punctuation, sqlparse.tokens.Whitespace):
-                continue
+    def process_token(token):
+        if isinstance(token, Identifier):
+            # print(f"Identifier found first:", token)
+            if isinstance(token.tokens[0], Function):
+                # print(f"Function in Identifier found:", token.tokens[0])
+                process_function(token.tokens[0])
 
-            # If token is an Identifier (e.g., column name)
-            if isinstance(token, Identifier):
-                # Use the raw value to check for dots
-                if '.' not in str(token):
-                    # Get the real name of the identifier
-                    columns.append(token.get_real_name())
-            # If token is an IdentifierList (e.g., a list of columns)
-            elif isinstance(token, IdentifierList):
-                for identifier in token.get_identifiers():
-                    if '.' not in str(identifier):
-                        columns.append(identifier.get_real_name())
-            # If token is a Function (e.g., SUM(column))
-            elif isinstance(token, Function):
-                # Check if function name is an aggregate function
-                func_name = token.get_name()
-                if func_name not in aggregate_functions:
-                    process_tokens(token.tokens)  # If it's not an aggregate function, process arguments
+            elif '.' not in token.value:
+                # print(f"Identifier found:", token.get_real_name())
+                columns.append(token.get_real_name())
+        elif isinstance(token, Function):
+            # print(f"Function found:", token)
+            process_function(token)
+        elif isinstance(token, IdentifierList):
+            for identifier in token.get_identifiers():
+                # print(f"IdentifierList found:", identifier)
+                process_token(identifier)
+        elif isinstance(token, Comparison):
+            for t in token.tokens:
+                if t.ttype is Name:
+                    columns.append(t.value)
                 else:
-                    # Process function arguments (e.g., SUM(EFF_RATE_PCT) => EFF_RATE_PCT)
-                    for arg in token.get_parameters():
-                        if isinstance(arg, Identifier) and '.' not in str(arg):
-                            columns.append(arg.get_real_name())
-            # If token is a parenthesis or a group (could contain nested tokens)
-            elif token.is_group:
-                process_tokens(token.tokens)
-            # For other tokens that may contain sub-tokens
-            elif hasattr(token, 'tokens'):
-                process_tokens(token.tokens)
-            # If token is a comparison or operation in WHERE or ON clauses
-            elif token.ttype is None:
-                # Check if token value contains a dot
-                if '.' not in str(token):
-                    columns.append(str(token))
+                    process_token(t)
 
-    # Start processing tokens
-    for token in parsed.tokens:
-        # Skip whitespace and punctuation tokens
-        if token.is_whitespace or token.ttype in (sqlparse.tokens.Punctuation, sqlparse.tokens.Whitespace):
-            continue
+    def process_function(func_token):
+        for arg in func_token.get_parameters():
+            if isinstance(arg, Identifier) and '.' not in arg.value:
+                columns.append(arg.get_real_name())
+            elif isinstance(arg, Function):
+                process_function(arg)
 
-        # Process SELECT clause
+    select_seen = False
+    for token in parsed_statement.tokens:
+        if token.ttype == Keyword:
+            print(f"Keyword: {token.value}")
         if token.ttype is DML and token.value.upper() == 'SELECT':
-            idx = parsed.token_index(token)
-            _, next_token = parsed.token_next(idx)  # Extract the token from the tuple
+            select_seen = True
+            continue
+        if select_seen:
+            if token.ttype is Keyword and token.value.upper() == 'FROM':
+                select_seen = False
+                continue
+            process_token(token)
+        elif token.ttype is Keyword and token.value.upper() in ('GROUP BY', 'ORDER BY'):
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
+            # print(f"ORDER BY, GROUP BY clause:", next_token)
             if next_token:
-                process_tokens([next_token])
-            continue
-        
-        # Process WHERE clause
-        if isinstance(token, Where):
-            process_tokens(token.tokens)
-            continue
-        
-        # Process GROUP BY clause
-        if token.ttype is Keyword and token.value.upper().startswith('GROUP BY'):
-            idx = parsed.token_index(token)
-            _, next_token = parsed.token_next(idx)  # Extract the token from the tuple
-            if next_token:
-                process_tokens([next_token])
-            continue
-        
-        # Process ON clauses (for JOINs)
-        if token.ttype is Keyword and token.value.upper() in ['ON', 'AND'] :
-            idx = parsed.token_index(token)
-            _, next_token = parsed.token_next(idx)  # Extract the token from the tuple
-            if next_token:
-                process_tokens([next_token])
-            continue
+                process_token(next_token)
+        elif isinstance(token, Where):
+            for t in token.tokens:
+                if isinstance(t, Comparison):
+                    for sub_token in t.tokens:
+                        if isinstance(sub_token, Identifier):
+                            process_token(sub_token)
+                        elif sub_token.ttype == sqlparse.tokens.Literal:
+                            process_token(sub_token)
+                elif t.ttype is Keyword and t.value.upper() == 'AND':
+                    next_token = token.token_next(token.token_index(t))[1]
+                    process_token(next_token)
+                elif isinstance(t, Identifier):
+                    print("Column found in WHERE clause:", t.get_real_name())
+                elif isinstance(t, Parenthesis):
+                    for inner_token in t.tokens:
+                        process_token(inner_token)
+                else:
+                    process_token(t)
+        elif token.ttype is Keyword and token.value.upper() in ('ON', 'AND'):
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
+            process_token(next_token)
 
-    # Remove duplicates and None values
-    columns = [col for col in set(columns) if col]
-    return columns
+    return list(set(col for col in columns if col))
 
 # Example usage
 sql_query = """
-select
-    chg.ac_ar_id,
-    sum(EFF_RATE_PCT)  INT_RATE
-from TWT_FNC_SVC_AR_ANL_FCT_FA_CHG chg
-left join ar_x_rate_tp_rltnp AXR on AXR.ar_x_rate_tp_rltnp_tp_id ='B1D1E14709EF08BBB38D361A980E4DE1'
-    AND AXR.RATE_TP_ID = '2EC90B394FDFF95D4EC063F17BE70B47' 
-    AND AXR.RATE_CMPT = 'INTEREST_RATE'
-    and AXR.ar_id = chg.AC_AR_ID AND AXR.EFF_DT <= LAST_EFF_DT AND AXR.END_DT > LAST_EFF_DT
+SELECT MAX( PERIOD ) AS PERIOD, TYPE FROM TBL_REVENUE_PERIOD_RATE GROUP BY TYPE;
 """
-sql_query.upper
+
 columns_without_dot = extract_columns_without_dot(sql_query)
-print(columns_without_dot)
+# print(columns_without_dot)

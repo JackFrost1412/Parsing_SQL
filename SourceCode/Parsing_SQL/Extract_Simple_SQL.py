@@ -61,7 +61,7 @@ def process_simple_query(sql_command):
     
     # Loop through each SQL command
     # Extract unqualified column names
-    unqualified_columns = extract_unqualified_columns_from_query(sql_command)
+    unqualified_columns = Extract_Tbl_Col.extract_columns_without_dot(sql_command)
     # Extract table names and aliases
     table_names = Extract_Tbl_Col.extract_table_names_with_aliases(sql_command)
     

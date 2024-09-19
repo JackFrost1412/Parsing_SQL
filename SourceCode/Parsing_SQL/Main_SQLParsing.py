@@ -12,10 +12,7 @@ def read_sql_file(file_path):
         return file.read()
     
 def clean_sql_query(sql):
-    """
-    Function to clean the SQL query by removing \(9) placeholders, single-line comments, 
-    and block comments.
-    """
+
     cleaned_query = sqlparse.format(sql, reindent = True, keyword_case = 'upper')
     # Remove \(9) placeholders
     cleaned_query = re.sub(r'\\\(9\)', '', cleaned_query)
@@ -60,7 +57,7 @@ def main_extract_sql_command(sql_query):
     
     # Check if the query contains a WITH CTE clause
     if "WITH" in cleaned_sql:
-        #print("Extract CTEs:")
+        # print("Extract CTEs:")
         formatted_sql = sqlparse.format(cleaned_sql).upper()
         tables_cte, columns_cte = Extract_WITH_CTE.process_sql_with_ctes(formatted_sql)
         tables.extend(tables_cte)
@@ -69,21 +66,21 @@ def main_extract_sql_command(sql_query):
     
     # Check if the query contains sub-selects
     elif has_subselect(cleaned_sql):
-        #print("Extract sub-selects: ")
+        # print("Extract sub-selects: ")
         tables_subselect, columns_subselect = Extract_Subselects.process_sql_sub_selects(cleaned_sql)
         tables.extend(tables_subselect)
         columns.extend(columns_subselect)
     
     # Check if the query contains no JOIN clause
-    elif "JOIN" not in cleaned_sql:
-        #print("Extract simple SQL: ")
-        tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
-        tables.extend(tables_no_join)
-        columns.extend(columns_no_join)
+    # elif "JOIN" not in cleaned_sql:
+    #     print("Extract simple SQL: ")
+    #     tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
+    #     tables.extend(tables_no_join)
+    #     columns.extend(columns_no_join)
     
     # For any other type of SQL query
     else:
-        #print("Extract general SQL: ")
+        # print("Extract general SQL: ")
         tables_all, columns_all = Extract_General_SQL.extract_general_sql(cleaned_sql)
         tables.extend(tables_all)
         columns.extend(columns_all)
@@ -94,6 +91,5 @@ def main_extract_sql_command(sql_query):
     
     # Output DataFrames
     inner_join_df = pd.merge(table_df, column_df, on = ['Source','Table Alias'], how ='outer')
-    inner_join_df = inner_join_df.drop_duplicates()
     return table_df, inner_join_df 
     

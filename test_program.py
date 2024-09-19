@@ -1,7 +1,7 @@
 import SourceCode.Parsing_SQL.Main_SQLParsing as Main_SQLParsing
 import pandas as pd
 
-sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\CTE_with.sql'
+sql_file_path = r'SourceCode\Parsing_SQL\Input_SQL_command\sql(9).sql'
 
 with open(sql_file_path, 'r') as file:
     sql_content = file.read()
@@ -13,7 +13,7 @@ print(f"Table, Alias: \n {table_df}")
 print(f"Full table : \n {inner_join_df}")
     
 # Save the DataFrame to an Excel file
-# with pd.ExcelWriter(r'Output\Table_Column\FSS_parsing_SQL_sub_selects.xlsx') as writer:
+# with pd.ExcelWriter(r'Output\Table_Column\FSS_parsing_SQL_CTE_with.xlsx') as writer:
 #     table_df.to_excel(
 #         writer,
 #         sheet_name='Table Name, Alias',
