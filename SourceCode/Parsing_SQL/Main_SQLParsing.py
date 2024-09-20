@@ -54,7 +54,7 @@ def main_extract_sql_command(sql_query):
     
     # Check if the query contains a WITH CTE clause
     if contains_cte:
-        print("Extract CTEs:")
+        # print("Extract CTEs:")
         tables_cte, columns_cte = Extract_WITH_CTE.process_sql_with_ctes(cleaned_sql)
         tables.extend(tables_cte)
         columns.extend(columns_cte)
@@ -62,21 +62,21 @@ def main_extract_sql_command(sql_query):
     
     # Check if the query contains sub-selects
     elif contains_subselect:
-        print("Extract sub-selects: ")
+        # print("Extract sub-selects: ")
         tables_subselect, columns_subselect = Extract_Subselects.process_sql_sub_selects(cleaned_sql)
         tables.extend(tables_subselect)
         columns.extend(columns_subselect)
     
     # Check if the query contains no JOIN clause
     elif not contains_join:
-        print("Extract simple SQL: ")
+        # print("Extract simple SQL: ")
         tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
         tables.extend(tables_no_join)
         columns.extend(columns_no_join)
     
     # For any other type of SQL query
     else:
-        print("Extract general SQL: ")
+        # print("Extract general SQL: ")
         tables_all, columns_all = Extract_General_SQL.extract_general_sql(cleaned_sql)
         tables.extend(tables_all)
         columns.extend(columns_all)
