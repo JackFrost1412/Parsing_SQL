@@ -26,11 +26,11 @@ def extract_unqualified_columns(tokens):
 
     for token in flatten_tokens(tokens):
         # Enable capturing after SELECT or in WHERE/ON/ORDER BY/GROUP BY clauses
-        if token.ttype is DML and token.value.upper() == 'SELECT':
+        if token.ttype is DML and token.value == 'SELECT':
             capturing_columns = True
-        elif token.ttype is Keyword and token.value.upper() in ('ON', 'WHERE', 'GROUP BY', 'ORDER BY', 'SET'):
+        elif token.ttype is Keyword and token.value in ('ON', 'WHERE', 'GROUP BY', 'ORDER BY', 'SET'):
             capturing_columns = True
-        elif token.ttype is Keyword and token.value.upper() in ('FROM', 'JOIN'):
+        elif token.ttype is Keyword and token.value in ('FROM', 'JOIN'):
             capturing_columns = False  # Disable capturing in FROM and JOIN clauses
 
         # If capturing columns, look for unqualified columns (ignore table names and keywords)
@@ -58,18 +58,16 @@ def process_simple_query(sql_command):
     # Initialize an empty list to collect rows for the DataFrame
     table = []
     column = []
-    
+    columns_without_alias = []
     # Loop through each SQL command
     # Extract unqualified column names
-    unqualified_columns = Extract_Tbl_Col.extract_columns_without_dot(sql_command)
+    unqualified_columns = extract_unqualified_columns_from_query(sql_command)
     # Extract table names and aliases
     table_names = Extract_Tbl_Col.extract_table_names_with_aliases(sql_command)
     
     # Extract the table name  (first element of table_names tuples)
     table.extend([("Main_SQL", table_name, table_name) for table_name, alias in table_names])
-    
-    columns_without_alias = []
-    
+ 
     for table_name in table_names:
         #print(f"Table Name: ", table)
         columns_without_alias = [("Main_SQL", table_name[0], column) for column in unqualified_columns]

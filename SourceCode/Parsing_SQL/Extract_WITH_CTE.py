@@ -11,7 +11,7 @@ def extract_ctes_and_rest(sql):
     cte_block_processed = False
 
     for token in parsed.tokens:
-        if token.ttype is Keyword.CTE and token.value.upper() == 'WITH':
+        if token.ttype is Keyword.CTE and token.value == 'WITH':
             in_cte_block = True
             continue
 
@@ -44,7 +44,7 @@ def process_cte(token, cte_dict):
     cte_sql_tokens = []
 
     for sub_token in token.tokens:
-        if sub_token.ttype is Keyword and sub_token.value.upper() == 'AS':
+        if sub_token.ttype is Keyword and sub_token.value == 'AS':
             as_keyword_found = True
         elif not as_keyword_found:
             # Before the 'AS', it's part of the CTE name
@@ -77,7 +77,6 @@ def process_sql_with_ctes(sql):
         
         # Append tables to the table_data list
         table_data.extend([(cte_name, table, alias) for table, alias in tables_with_aliases])
-        
         # Append columns to the column_data list
         column_data.extend([(cte_name, alias, col) for alias, col in alias_column_pairs])
         # Append columns to the column_data list
@@ -89,7 +88,6 @@ def process_sql_with_ctes(sql):
     col_without_alias_main = Extract_Tbl_Col.extract_columns_without_dot(main_sql)
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
-    
     # Append main SQL columns to the column_data list
     column_data.extend([("Main_SQL", alias, col) for alias, col in alias_column_pairs])
     column_data.extend([("Main_SQL", None, col) for col in col_without_alias_main])

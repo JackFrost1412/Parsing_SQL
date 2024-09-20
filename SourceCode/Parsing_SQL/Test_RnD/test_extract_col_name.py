@@ -1,82 +1,93 @@
+from collections import deque
 import sqlparse
-from sqlparse.sql import Identifier, IdentifierList
-from sqlparse.tokens import Keyword, DML
+from sqlparse.sql import Parenthesis, Identifier, IdentifierList
+from sqlparse.tokens import DML
+import time 
 
-def extract_ctes_and_rest(sql):
-    parsed = sqlparse.parse(sql)[0]
-    cte_dict = {}
-    main_sql_parts = []
-    in_cte_block = False
-    cte_block_processed = False
+from collections import deque
+import sqlparse
+from sqlparse.sql import Parenthesis, Identifier, IdentifierList
+from sqlparse.tokens import DML
 
-    for token in parsed.tokens:
-        if token.ttype is Keyword.CTE and token.value.upper() == 'WITH':
-            in_cte_block = True
-            continue
+def extract_nested_subselects_and_rest(sql):
+    parsed = sqlparse.parse(sql)
+    subselects_with_names = []
+    # rest_of_sql = deque()
+    
+    # Helper function to recursively find sub-selects
+    def find_subselects_and_rest(token, alias=None, level=0):
+        if isinstance(token, Parenthesis):
+            # Check for a sub-select inside parentheses
+            if any(t.ttype is DML and t.value.upper() == 'SELECT' for t in token.flatten()):
+                stripped_subselect = str(token).strip('()')
+                subselects_with_names.append((alias, stripped_subselect, level))  # Add the level of nesting
+                # Recursively look inside the sub-select to find deeper sub-selects
+                for subtoken in token.tokens:
+                    find_subselects_and_rest(subtoken, alias, level + 1)
+                return  # Skip adding this sub-select to the rest of SQL
 
-        if in_cte_block and not cte_block_processed:
-            # CTE block, look for CTE definitions and split at AS
-            if isinstance(token, IdentifierList):
-                # There could be multiple CTEs separated by commas
-                for identifier in token.get_identifiers():
-                    process_cte(identifier, cte_dict)
-                cte_block_processed = True
-            elif isinstance(token, Identifier):
-                # Single CTE
-                process_cte(token, cte_dict)
-                cte_block_processed = True
-            continue
-        
-        # After processing CTEs, switch to collecting the main SQL
-        if cte_block_processed:
-            main_sql_parts.append(str(token).strip())
+            # Continue processing the parenthesis tokens
+            for subtoken in token.tokens:
+                find_subselects_and_rest(subtoken, alias, level)
 
-    # Join the parts of the main SQL command
-    main_sql = ' '.join(main_sql_parts).strip()
-    return cte_dict, main_sql
+        elif isinstance(token, Identifier) or isinstance(token, IdentifierList):
+            # Process identifiers or identifier lists
+            for subtoken in token.tokens:
+                if isinstance(subtoken, Parenthesis):
+                    find_subselects_and_rest(subtoken, token.get_real_name(), level)
+                # else:
+                #     rest_of_sql.append(str(subtoken))
+                    
+        elif token.is_group:
+            # Process other grouped tokens
+            for subtoken in token.tokens:
+                find_subselects_and_rest(subtoken, alias, level)
+                
+        # else:
+        #     # Add other tokens to the rest of SQL
+        #     rest_of_sql.append(str(token))
 
-def process_cte(token, cte_dict):
-    """Helper function to process each CTE and extract its name and SQL."""
-    cte_name = None
-    cte_sql = None
-    as_keyword_found = False
-    cte_sql_tokens = []
+    # Process each statement in the parsed SQL
+    for statement in parsed:
+        find_subselects_and_rest(statement)
 
-    for sub_token in token.tokens:
-        if sub_token.ttype is Keyword and sub_token.value.upper() == 'AS':
-            as_keyword_found = True
-        elif not as_keyword_found:
-            # Before the 'AS', it's part of the CTE name
-            if cte_name is None:
-                cte_name = sub_token.value.strip().rstrip(')')
-        else:
-            # After the 'AS', it's part of the CTE SQL
-            cte_sql_tokens.append(sub_token.value)
+    # Combine rest of SQL into a string
+    # rest_of_sql_combined = ''.join(rest_of_sql).strip()
 
-    if cte_name and cte_sql_tokens:
-        cte_sql = ''.join(cte_sql_tokens).strip().lstrip('(').rstrip(')')
-        cte_dict[cte_name] = cte_sql
+    return subselects_with_names
 
-sql_query = """
-WITH union_datas AS (
-   SELECT col1 FROM table1
-), cte2 AS (
-   SELECT col2 FROM table2
-)
-SELECT col1, col2 FROM union_datas JOIN cte2 ON union_datas.col1 = cte2.col2;
-"""
+# Function to remove level 1 sub-selects from the original SQL
+def remove_level_1_subselects(sql, subselects_with_names):
+    # Work with the original SQL string and replace level 1 sub-selects
+    modified_sql = sql
+    for alias, subselect, level in subselects_with_names:
+        if level == 0:
+            # Replace sub-select at level 1 with a placeholder "()"
+            modified_sql = modified_sql.replace(subselect, "")
+    return modified_sql
 
+start = time.time()
+# Test the performance of this code with a large SQL query:
+sql_file_path = r'Output\SQL_Job_DS\BIDV_MIS_20240813_DMT_100_job\PAR_NZ_DMMIS_ADMIN_CST_PD_ANL_FCT_DAILY_CADENCIE_EXTRA_Dels.sql'
+sql_ex_sub = r'SourceCode\Parsing_SQL\Input_SQL_command\sql(9).sql'
 
-sql_file_path = 'SourceCode\Parsing_SQL\Input_SQL_command\CTE_with.sql'
 with open(sql_file_path, 'r') as file:
     sql_content = file.read()
-    
-# Call the function and print results
-ctes, main_sql = extract_ctes_and_rest(sql_content)
 
-print("CTEs:")
-for cte_name, cte_sql in ctes.items():
-    print(f"{cte_name}: \n {cte_sql}")
+cleaned_query = sqlparse.format(sql_content).upper()
+print(cleaned_query)
+# # Step 1: Extract sub-selects and get the rest of the SQL
+# subselects = extract_nested_subselects_and_rest(sql_content)
 
-print("\nMain SQL:")
-print(main_sql)
+# # Step 2: Remove level 1 sub-selects from the original SQL
+# remaining_sql = remove_level_1_subselects(sql_content, subselects)
+
+# # Output the results
+# print("Sub-selects with Nesting Levels:")
+# for subselect in subselects:
+#     print(f"Alias: {subselect[0]}, Level: {subselect[2]}, Subselect: {subselect[1]}")
+
+# print("\nRemaining SQL without Level 1 Sub-selects: \n", remaining_sql)
+
+# end = time.time()
+# print(f"Time taken: {end - start} seconds")

@@ -11,11 +11,8 @@ def extract_general_sql(sql_query):
 
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
-    
     # Append main SQL columns to the column_data list
     column_data.extend([("Main_SQL", alias, col) for alias, col in alias_column_pairs])
-    
-    for table_name in tables_with_aliases:
-        column_data.extend([("Main_SQL", table_name[0], col) for col in col_without_alias_main])
+    column_data.extend([("Main_SQL", None, col) for col in col_without_alias_main])
     
     return table_data, column_data
