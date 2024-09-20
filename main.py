@@ -4,7 +4,9 @@ import configparser
 from SourceCode.Parsing_SQL.Main_SQLParsing import main_extract_sql_command
 from SourceCode.Extract_Docx.main import docx_to_excel
 from SourceCode.Extract_Job_DataStage.main import job_to_txt, job_to_excel
+import time 
 
+start = time.time()
 # Đọc đường dẫn thư mục từ file config.ini
 config = configparser.ConfigParser()
 try:
@@ -126,3 +128,5 @@ else:
     print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
     
 print("Done")
+end = time.time()
+print(end-start)
