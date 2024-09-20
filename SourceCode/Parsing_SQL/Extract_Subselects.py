@@ -106,7 +106,7 @@ def process_sql_sub_selects(sql):
         source = alias if alias else 'sub-select'
         tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(subselect)
         alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(subselect)
-        columns_without_alias = Extract_Tbl_Col.extract_columns_without_dot(subselect)
+        columns_without_alias = Extract_Tbl_Col.extract_column_names_without_dot(subselect)
         
         # Add source information to each entry
         tables_with_aliases_with_source = [(source, table, alias) for table, alias in tables_with_aliases]
@@ -120,7 +120,7 @@ def process_sql_sub_selects(sql):
     # Process the main SQL command
     main_tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(reconstructed_sql)
     main_alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(reconstructed_sql)
-    main_col_without_alias = Extract_Tbl_Col.extract_columns_without_dot(reconstructed_sql)
+    main_col_without_alias = Extract_Tbl_Col.extract_column_names_without_dot(reconstructed_sql)
     # print(f"Main sql column: \n ",main_col_without_alias)
     
     # Add 'main SQL' as the source

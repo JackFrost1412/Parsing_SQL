@@ -54,7 +54,7 @@ def process_sql_with_ctes(sql):
         # Extract tables and columns
         tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(cte_sql)
         alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(cte_sql)
-        col_without_alias = Extract_Tbl_Col.extract_columns_without_dot(cte_sql)
+        col_without_alias = Extract_Tbl_Col.extract_column_names_without_dot(cte_sql)
         
         # Append tables to the table_data list
         table_data.extend([(cte_name, table, alias) for table, alias in tables_with_aliases])
@@ -67,7 +67,7 @@ def process_sql_with_ctes(sql):
     # Process main SQL command
     tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(main_sql)
     alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(main_sql)
-    col_without_alias_main = Extract_Tbl_Col.extract_columns_without_dot(main_sql)
+    col_without_alias_main = Extract_Tbl_Col.extract_column_names_without_dot(main_sql)
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
     
