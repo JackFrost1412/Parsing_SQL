@@ -6,6 +6,9 @@ from SourceCode.Extract_Docx.main import docx_to_excel
 from SourceCode.Extract_Job_DataStage.main import job_to_txt, job_to_excel
 import time 
 
+def count_sql_files(directory):
+    return len([f for f in os.listdir(directory) if f.endswith('.sql')])
+
 start = time.time()
 # Đọc đường dẫn thư mục từ file config.ini
 config = configparser.ConfigParser()
@@ -23,14 +26,23 @@ all_inner_join_df = []
 
 if extension == ".dsx":
     try:
+        print("Bắt đầu tiến trình lọc ra các câu truy vấn.\n")
+        
         # Xuất ra file chứa các câu truy vấn
-        job_to_excel(file_name)
+        # job_to_excel(file_name)
         job_to_txt(file_name)
-
+        
+        print("Kết thúc tiến trình lọc ra các câu truy vấn.\n")
+        
         # Tạo đường dẫn tới file Excel để lưu kết quả
         file_input = fr"Output\SQL_Job_DS\{file_name}"
         file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
-
+        
+        total_files = count_sql_files(file_input)
+        files_processed = 0
+        
+        print("Bắt đầu tiến trình tách các bảng và cột.\n")
+        
         # Duyệt qua từng file .sql trong thư mục
         for filename in os.listdir(file_input):
             if filename.endswith(".sql"):
@@ -57,9 +69,14 @@ if extension == ".dsx":
                             inner_join_df['job_name'] = job_name
                             all_inner_join_df.append(inner_join_df)
                 except (FileNotFoundError, IOError) as e:
-                    print(f"Error reading file {filename}: {e}")
+                    print(f"Lỗi đọc file {filename}: {e}")
+                    
+            files_processed += 1
+            print(fr"Đã xử lý {files_processed}/{total_files} file.", end='\r')
+        print()
+        print("\nKết thúc tiến trình tách các bảng và cột.\n")
     except Exception as e:
-        print(f"Error processing .dsx files: {e}")
+        print(f"Lỗi xử lý .dsx files: {e}")
     
     try:
         final_table_df = pd.concat(all_table_df, ignore_index=True).drop_duplicates()
@@ -74,13 +91,17 @@ if extension == ".dsx":
     except Exception as e:
         print(f"Error writing to Excel: {e}")
         
-    print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
+    print(f"File Excel các bảng và cột đã được lưu tại: {file_output}.")
 
 else:
     try:
+        print("Bắt đầu tiến trình lọc ra các câu truy vấn.\n")
+        
         # Xuất ra file Excel chứa các câu truy vấn từ docx
         docx_to_excel(file_name)
 
+        print("Kết thúc tiến trình lọc ra các câu truy vấn.\n")
+        
         # Tạo đường dẫn tới file Excel để lưu kết quả
         file_input = fr"Output\SQL_Docx\{file_name}_SQLs.xlsx"
         file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
@@ -91,6 +112,9 @@ else:
             print(f"Error reading Excel file {file_input}: {e}")
             exit(1)
 
+        total_files = len(df)
+        files_processed = 0
+        
         # Duyệt qua từng dòng trong DataFrame
         for index, row in df.iterrows():
             heading = row['Heading']
@@ -106,7 +130,11 @@ else:
                 all_inner_join_df.append(inner_join_df)
             except Exception as e:
                 print(f"Error processing SQL query in row {index}: {e}")
-
+            
+            files_processed += 1
+            print(fr"Đã xử lý {files_processed}/{total_files} truy vấn.", end='\r')
+        print()
+        print("\nKết thúc tiến trình tách các bảng và cột.\n")
     except Exception as e:
         print(f"Error processing docx files: {e}")
     
@@ -125,8 +153,7 @@ else:
     except Exception as e:
         print(f"Error writing to Excel: {e}")
         
-    print(fr"File Excel các bảng và cột đã được lưu tại: {file_output}.")
+    print(f"File Excel các bảng và cột đã được lưu tại: {file_output}.")
     
-print("Done")
 end = time.time()
-print(end-start)
+print(f"\nThời gian xử lý hết: {end-start} giây.\n")

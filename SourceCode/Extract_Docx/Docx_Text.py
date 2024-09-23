@@ -34,6 +34,7 @@ def extract_sql_code(docx_file):
     sql_data = []
     current_block = []
     current_heading = None
+    total_sqls = 0
     
     sql_dml_keywords = ('WITH', 'SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM')
     sql_keywords = ('WITH', 'SELECT', 'UPDATE', 'CASE WHEN', 'CASE', 'WHERE', 'UNION ALL', 'JOIN', 'INSERT INTO', 'DELETE FROM')
@@ -48,6 +49,8 @@ def extract_sql_code(docx_file):
         if not text:
             if current_block and not any(kw in current_block[-1].upper() for kw in sql_keywords):
                 sql_data.append({'Heading': current_heading, 'SQL Query': "\n".join(current_block)})
+                total_sqls += 1
+                print(f"Số lượng câu truy vấn đọc được: {total_sqls}", end='\r')
                 current_block = []
             continue
         
@@ -74,14 +77,20 @@ def extract_sql_code(docx_file):
 
         if text.endswith(';'):
             sql_data.append({'Heading': current_heading, 'SQL Query': "\n".join(current_block)})
+            total_sqls += 1
+            print(f"Số lượng câu truy vấn đọc được: {total_sqls}", end='\r')
             current_block = []
             continue
                 
     if current_block:
         sql_data.append({'Heading': current_heading, 'SQL Query': "\n".join(current_block)})
+        total_sqls += 1
+        print(f"Số lượng câu truy vấn đọc được: {total_sqls}", end='\r')
+    print()
 
     sql_data = [data for data in sql_data if data['SQL Query'] and data['SQL Query'].strip()]
-
+    print(f"Số lượng câu truy vấn sau khi lọc chuỗi rỗng: {len(sql_data)}")
+    
     # Tạo DataFrame từ danh sách sql_data
     df = pd.DataFrame(sql_data, columns=['Heading', 'SQL Query'])
     
