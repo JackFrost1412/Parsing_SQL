@@ -80,7 +80,7 @@ def process_sql_sub_selects(sql):
         source = alias if alias else 'sub-select'
         tables_with_aliases = Extract_Tbl_Col.extract_table_names_with_aliases(subselect)
         alias_column_pairs = Extract_Tbl_Col.extract_alias_column_pairs(subselect)
-        columns_without_alias = Extract_Tbl_Col.extract_columns_without_dot(subselect)
+        columns_without_alias = Extract_Tbl_Col.extract_column_names_without_dot(subselect)
         
         all_tables_with_aliases.extend([(source, table, alias) for table, alias in tables_with_aliases])
         all_alias_column_pairs.extend([(source, alias, column) for alias, column in alias_column_pairs])
