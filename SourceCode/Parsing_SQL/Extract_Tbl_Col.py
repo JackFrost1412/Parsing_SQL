@@ -52,13 +52,9 @@ def extract_alias_column_pairs(sql):
         print(f"Error in extract_alias_column_pairs: {e}")
         return []
 
-def extract_columns_without_dot(sql):
-    # Check if the SQL command is None or empty
-    if not sql or not sql.strip():
-        return []  # Return an empty list for empty or None SQL input
-    
-    # Parse the SQL statement
-    parsed = sqlparse.parse(sql.upper())
+def extract_column_names_without_dot(sql_query):
+    # Parse the SQL query
+    parsed = sqlparse.parse(sql_query)
     
     # If only a single SQL statement is passed, grab the first one
     if parsed and len(parsed) == 1:
