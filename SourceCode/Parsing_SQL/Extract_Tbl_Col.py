@@ -5,96 +5,124 @@ from sqlparse.tokens import Keyword, DML, Name
 import re
 
 def extract_table_names_with_aliases(sql):
-    # Parse the SQL statement
-    parsed = sqlparse.parse(sql)
-    
-    # List to hold table names and their aliases
-    tables_with_aliases = []
-    
-    for stmt in parsed:
-        # Keep track of the current keyword context
-        context = None
+    try:
+        # Parse the SQL statement
+        parsed = sqlparse.parse(sql)
         
-        for token in stmt.tokens:
-            # print(f"Token: {token}, Ttype; {token.ttype}, Type: {type(token)}")
-            # Update the context when encountering relevant keywords
-            if token.ttype is Keyword or token.ttype is DML:
-                value = token.value.upper()
-                if value in [ 'JOIN', 'INTO', 'UPDATE']:
-                    context = value
-                elif value in ['FROM', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN']:
-                    context = 'JOIN'
-                elif value.startswith('UNION') or value.startswith('UNION ALL'):
-                    context = value
-                else:
-                    context = None
+        # List to hold table names and their aliases
+        tables_with_aliases = []
+        
+        for stmt in parsed:
+            context = None
             
-            # Extract table names with aliases based on the current context
-            if context and isinstance(token, (Identifier, IdentifierList)):
-                identifiers = token.get_identifiers() if isinstance(token, IdentifierList) else [token]
+            for token in stmt.tokens:
+                if token.ttype is Keyword or token.ttype is DML:
+                    value = token.value
+                    if value in ['FROM', 'INTO', 'UPDATE']:
+                        context = value
+                    elif value in ['LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'OUTER JOIN', 'JOIN']:
+                        context = 'JOIN'
+                    else:
+                        context = None
                 
-                for identifier in identifiers:
-                    tables_with_aliases.append((identifier.get_real_name(), identifier.get_alias() or identifier.get_real_name()))
-    
-    # Convert list to pandas DataFrame
-    return tables_with_aliases
+                if context and isinstance(token, (Identifier, IdentifierList)):
+                    identifiers = token.get_identifiers() if isinstance(token, IdentifierList) else [token]
+                    
+                    for identifier in identifiers:
+                        tables_with_aliases.append((identifier.get_real_name(), identifier.get_alias() or identifier.get_real_name()))
+        
+        return tables_with_aliases
+    except Exception as e:
+        print(f"Error in extract_table_names_with_aliases: {e}")
+        return []
 
 def extract_alias_column_pairs(sql):
-    # First clean the query from \(9) placeholders
-    # Regular expression to match alias.column patterns
-    pattern = re.compile(r'(\b\w+\b)\.(\b\w+\b)', re.IGNORECASE)
-    columns = []
-    tuples = []
-    # Find all matches in the SQL statement
-    matches = pattern.findall(sql)
-    
-    # Print the extracted alias.column pairs
-    if matches:
-        # print("Alias.Column Pairs:")
-        for alias, column in matches:
-            # print(f"- {alias}.{column}")
-            columns.append(alias + "." + column)
-            tuples = [tuple(col.split('.', 1)) for col in columns]
-    return tuples
+    try:
+        pattern = re.compile(r'(\b\w+\b)\.(\b\w+\b)', re.IGNORECASE)
+        columns = []
+        tuples = []
+        matches = pattern.findall(sql)
+        
+        if matches:
+            for alias, column in matches:
+                columns.append(alias + "." + column)
+                tuples = [tuple(col.split('.', 1)) for col in columns]
+        return tuples
+    except Exception as e:
+        print(f"Error in extract_alias_column_pairs: {e}")
+        return []
 
 def extract_column_names_without_dot(sql_query):
     # Parse the SQL query
     parsed = sqlparse.parse(sql_query)
     
-    # Initialize a set to store column names without dots
-    column_names = set()
+    # If only a single SQL statement is passed, grab the first one
+    if parsed and len(parsed) == 1:
+        parsed_statement = parsed[0]
+    else:
+        return []  # Return an empty list if no valid statement is found
     
-    for stmt in parsed:
-        # Process each statement
-        tokens = [token for token in stmt.tokens if not token.is_whitespace]
-        inside_clause = None
-        
-        for token in tokens:
-            # Identify the clause context
-            if token.value.upper().startswith('SELECT'):
-                inside_clause = 'SELECT'
-            elif token.value.upper().startswith('WHERE'):
-                inside_clause = 'WHERE'
-            elif token.value.upper().startswith('GROUP BY'):
-                inside_clause = 'GROUP BY'
-            elif token.value.upper().startswith('ON'):
-                inside_clause = 'ON'
-            elif token.value.upper().startswith('UNION') or token.value.upper().startswith('UNION ALL'):
-                inside_clause = 'SELECT'  # Continue to extract columns after UNION
-            
-            # Extract column names based on the clause context
-            if inside_clause:
-                # Extract column names from token value
-                if token.ttype is None and not token.is_keyword:
-                    for subtoken in token.tokens:
-                        if subtoken.ttype is None and '.' not in subtoken.value:
-                            column_names.add(subtoken.value.strip())
-                
-                # Reset clause context after processing
-                if inside_clause and token.value.upper() in {'FROM', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'INNER JOIN', 'OUTER JOIN'}:
-                    inside_clause = None
-    
-    return list(column_names)
+    columns = []
 
+    def process_token(token):
+        if isinstance(token, Identifier):
+            if isinstance(token.tokens[0], Function):
+                process_function(token.tokens[0])
+            elif '.' not in token.value:
+                columns.append(token.get_real_name())
+        elif isinstance(token, Function):
+            process_function(token)
+        elif isinstance(token, IdentifierList):
+            for identifier in token.get_identifiers():
+                process_token(identifier)
+        elif isinstance(token, Comparison):
+            for t in token.tokens:
+                if t.ttype is Name:
+                    columns.append(t.value)
+                else:
+                    process_token(t)
 
+    def process_function(func_token):
+        for arg in func_token.get_parameters():
+            if isinstance(arg, Identifier) and '.' not in arg.value:
+                columns.append(arg.get_real_name())
+            elif isinstance(arg, Function):
+                process_function(arg)
 
+    select_seen = False
+    for token in parsed_statement.tokens:
+        if token.ttype is DML and token.value.upper() == 'SELECT':
+            select_seen = True
+            continue
+        if select_seen:
+            if token.ttype is Keyword and token.value.upper() == 'FROM':
+                select_seen = False
+                continue
+            process_token(token)
+        elif token.ttype is Keyword and token.value.upper() in ('GROUP BY', 'ORDER BY'):
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
+            if next_token:
+                process_token(next_token)
+        elif isinstance(token, Where):
+            for t in token.tokens:
+                if isinstance(t, Comparison):
+                    for sub_token in t.tokens:
+                        if isinstance(sub_token, Identifier):
+                            process_token(sub_token)
+                        elif sub_token.ttype == sqlparse.tokens.Literal:
+                            process_token(sub_token)
+                elif t.ttype is Keyword and t.value.upper() == 'AND':
+                    next_token = token.token_next(token.token_index(t))[1]
+                    process_token(next_token)
+                # elif isinstance(t, Identifier):
+                #     print("Column found in WHERE clause:", t.get_real_name())
+                elif isinstance(t, Parenthesis):
+                    for inner_token in t.tokens:
+                        process_token(inner_token)
+                else:
+                    process_token(t)
+        elif token.ttype is Keyword and token.value.upper() in ('ON', 'AND'):
+            next_token = parsed_statement.token_next(parsed_statement.token_index(token))[1]
+            process_token(next_token)
+
+    return list(set(col for col in columns if col))

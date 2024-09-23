@@ -22,7 +22,7 @@ def remove_text_before_keyword(text, keyword):
 def format_sql(text):
     keywords_with_space = ['WITH', 'SELECT', 'UPDATE', 'CASE WHEN', 'CASE', 'WHERE', 'UNION ALL', 'JOIN', 'INSERT INTO', 'DELETE FROM']
     for keyword in keywords_with_space:
-        text = re.sub(rf'\b{keyword}\s*', f'{keyword} ', text, flags=re.IGNORECASE)
+        text = re.sub(rf'\b{keyword}\s*', f'{keyword} ', text, count=1, flags=re.IGNORECASE)
     return text
 
 def contains_vietnamese(text):

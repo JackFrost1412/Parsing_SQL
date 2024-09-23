@@ -1,5 +1,6 @@
 import sqlparse
 from sqlparse.tokens import Keyword, DML, Keyword
+from sqlparse.sql import Identifier, IdentifierList
 import SourceCode.Parsing_SQL.Extract_Tbl_Col as Extract_Tbl_Col
 
 def extract_ctes_and_rest(sql):
@@ -7,37 +8,55 @@ def extract_ctes_and_rest(sql):
     cte_dict = {}
     main_sql_parts = []
     in_cte_block = False
+    cte_block_processed = False
 
     for token in parsed.tokens:
-        if token.ttype is Keyword.CTE and token.value.upper() == 'WITH':
+        if token.ttype is Keyword.CTE and token.value == 'WITH':
             in_cte_block = True
             continue
 
-        if in_cte_block:
-            if token.ttype is None:  # The CTE block is in a single token
-                # Extract CTEs from the token value
-                cte_definitions = token.value.split('),')
-                
-                for cte_def in cte_definitions:
-                    if 'AS' in cte_def:
-                        
-                        parts = cte_def.split('AS', 1)
-                        cte_name = parts[0].strip().rstrip(')')
-                        cte_sql = parts[1].strip().lstrip('(')
-                        cte_dict[cte_name] = cte_sql
-
-                in_cte_block = False
-            # Skip tokens that are part of CTE block
+        if in_cte_block and not cte_block_processed:
+            # CTE block, look for CTE definitions and split at AS
+            if isinstance(token, IdentifierList):
+                # There could be multiple CTEs separated by commas
+                for identifier in token.get_identifiers():
+                    process_cte(identifier, cte_dict)
+                cte_block_processed = True
+            elif isinstance(token, Identifier):
+                # Single CTE
+                process_cte(token, cte_dict)
+                cte_block_processed = True
             continue
-
-        # Collect remaining SQL after CTEs
-        if token.ttype in (DML, Keyword, None):
-            main_sql_parts.append(token.value.strip())
+        
+        # After processing CTEs, switch to collecting the main SQL
+        if cte_block_processed:
+            main_sql_parts.append(str(token).strip())
 
     # Join the parts of the main SQL command
     main_sql = ' '.join(main_sql_parts).strip()
-    return cte_dict, main_sql   
+    return cte_dict, main_sql
 
+def process_cte(token, cte_dict):
+    """Helper function to process each CTE and extract its name and SQL."""
+    cte_name = None
+    cte_sql = None
+    as_keyword_found = False
+    cte_sql_tokens = []
+
+    for sub_token in token.tokens:
+        if sub_token.ttype is Keyword and sub_token.value == 'AS':
+            as_keyword_found = True
+        elif not as_keyword_found:
+            # Before the 'AS', it's part of the CTE name
+            if cte_name is None:
+                cte_name = sub_token.value.strip().rstrip(')')
+        else:
+            # After the 'AS', it's part of the CTE SQL
+            cte_sql_tokens.append(sub_token.value)
+
+    if cte_name and cte_sql_tokens:
+        cte_sql = ''.join(cte_sql_tokens).strip().lstrip('(').rstrip(')')
+        cte_dict[cte_name] = cte_sql
 # Example SQL with CTEs
 def process_sql_with_ctes(sql):
     # Extract CTEs and main SQL command
@@ -58,7 +77,6 @@ def process_sql_with_ctes(sql):
         
         # Append tables to the table_data list
         table_data.extend([(cte_name, table, alias) for table, alias in tables_with_aliases])
-        
         # Append columns to the column_data list
         column_data.extend([(cte_name, alias, col) for alias, col in alias_column_pairs])
         # Append columns to the column_data list
@@ -70,7 +88,6 @@ def process_sql_with_ctes(sql):
     col_without_alias_main = Extract_Tbl_Col.extract_column_names_without_dot(main_sql)
     # Append main SQL tables to the table_data list
     table_data.extend([("Main_SQL", table, alias) for table, alias in tables_with_aliases])
-    
     # Append main SQL columns to the column_data list
     column_data.extend([("Main_SQL", alias, col) for alias, col in alias_column_pairs])
     column_data.extend([("Main_SQL", None, col) for col in col_without_alias_main])
