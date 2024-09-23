@@ -1,5 +1,0 @@
-UPDATE 
-STG_SEAOPS.TBL_BI_CONTRACT_REF_DEFINE
-SET
-cps_tsktdk = 'Y' WHERE o.CUSTOMER_ID = :customerId
-AND CO_CODE = : coCode;
