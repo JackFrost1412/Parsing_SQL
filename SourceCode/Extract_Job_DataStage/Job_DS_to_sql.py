@@ -36,9 +36,10 @@ def extract_jobs_to_sql(dsx_content, output_dir):
 
     sql_matches = re.finditer(r'<!\[CDATA\[(.*?)\]\]>', dsx_content, re.DOTALL | re.IGNORECASE)
     sql_queries = [(match.start(), match.group(1).strip()) for match in sql_matches]
-    
-    job_queries_dict = {}
 
+    job_queries_dict = {}
+    total_jobs = 0
+    
     # Danh sách các từ khóa bắt đầu lọc câu truy vấn
     sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE']
 
@@ -72,7 +73,11 @@ def extract_jobs_to_sql(dsx_content, output_dir):
                     if job_name not in job_queries_dict:
                         job_queries_dict[job_name] = []
                     job_queries_dict[job_name].append(cleaned_query)
-
+                    total_jobs += 1
+                    print(f"Số câu truy vấn đọc được: {total_jobs}", end='\r')
+    print()
+    print(f"Số job đọc được: {len(job_queries_dict)}\n")
+    
     # Ghi từng job ra 1 file riêng biệt
     for job_name, queries in job_queries_dict.items():
         write_queries_to_file(job_name, queries, output_dir)

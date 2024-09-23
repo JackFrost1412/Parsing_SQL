@@ -22,8 +22,7 @@ def job_to_excel(file_name):
 
     df.to_excel(file_output, index=False)
 
-    print(f"File Excel các câu truy vấn đã được lưu tại: {file_output}.")
-
+    print(f"File Excel các câu truy vấn đã được lưu tại: {file_output}.\n")
 
 # Xuất file Job dưới dạng thư mục chứa các file .sql
 def job_to_txt(file_name):
@@ -39,7 +38,7 @@ def job_to_txt(file_name):
 
     extract_jobs_to_sql(dsx_content, output)
 
-    print(f"Files các câu truy vấn đã được lưu tại thư mục: {output}.")
+    print(f"Files các câu truy vấn đã được lưu tại thư mục: {output}.\n")
 
 # Điền tên file cần xử lý 
 # file_name = "BIDV_MIS_20240813_DMT_100_job"
