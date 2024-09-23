@@ -18,7 +18,7 @@ def clean_sql_query(sql):
     cleaned_query = re.sub(r'/\*.*?\*/', '', cleaned_query, flags=re.DOTALL)  # Remove block comments
     cleaned_query = re.sub(r'\\\(9\)', '', cleaned_query)                  # Remove \(9) placeholders
     
-    cleaned_query = sqlparse.format(cleaned_query).upper()
+    cleaned_query = sqlparse.format(cleaned_query, keyword_case = 'upper')
     # Optional: Strip leading/trailing whitespace (optional optimization for tidier output)
     return cleaned_query.strip()
 # Compile regex patterns once to avoid repeated compilation
@@ -42,7 +42,7 @@ def main_extract_sql_command(sql_query):
         dict: A dictionary containing table names and column names.
     """   
     
-    cleaned_sql = clean_sql_query(sql_query).upper()
+    cleaned_sql = clean_sql_query(sql_query)
 
     tables = []
     columns = []
