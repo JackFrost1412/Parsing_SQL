@@ -43,7 +43,6 @@ def main_extract_sql_command(sql_query):
     """   
     
     cleaned_sql = clean_sql_query(sql_query).upper()
-
     tables = []
     columns = []
     
@@ -68,11 +67,11 @@ def main_extract_sql_command(sql_query):
         columns.extend(columns_subselect)
     
     # Check if the query contains no JOIN clause
-    elif not contains_join:
-        # print("Extract simple SQL: ")
-        tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
-        tables.extend(tables_no_join)
-        columns.extend(columns_no_join)
+    # elif not contains_join:
+    #     print("Extract simple SQL: ")
+    #     tables_no_join, columns_no_join = Extract_Simple_SQL.process_simple_query(cleaned_sql)
+    #     tables.extend(tables_no_join)
+    #     columns.extend(columns_no_join)
     
     # For any other type of SQL query
     else:

@@ -110,6 +110,8 @@ def extract_column_names_without_dot(sql_query):
                         if isinstance(sub_token, Identifier):
                             process_token(sub_token)
                         elif sub_token.ttype == sqlparse.tokens.Literal:
+                            pass
+                        else:
                             process_token(sub_token)
                 elif t.ttype is Keyword and t.value.upper() == 'AND':
                     next_token = token.token_next(token.token_index(t))[1]
