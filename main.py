@@ -29,7 +29,7 @@ if extension == ".dsx":
         print("Bắt đầu tiến trình lọc ra các câu truy vấn.\n")
         
         # Xuất ra file chứa các câu truy vấn
-        job_to_excel(file_name)
+        # job_to_excel(file_name)
         job_to_txt(file_name)
         
         print("Kết thúc tiến trình lọc ra các câu truy vấn.\n")
