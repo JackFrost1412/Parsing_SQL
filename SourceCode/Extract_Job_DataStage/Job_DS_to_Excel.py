@@ -27,7 +27,7 @@ def extract_jobs_to_excel(dsx_content):
         query = re.sub(r'#pDate#|#pdate#', ':pdate:', query)
         
         # Chỉ lấy những câu truy vấn bắt đầu bằng từ khóa SQL chính xác
-        sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE']
+        sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE', 'DROP']
         
         # Tách tất cả câu truy vấn ngăn cách bởi dấu chấm phẩy
         queries = re.split(r';', query)
