@@ -41,7 +41,7 @@ def extract_jobs_to_sql(dsx_content, output_dir):
     total_jobs = 0
     
     # Danh sách các từ khóa bắt đầu lọc câu truy vấn
-    sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE', 'DROP', 'CREATE']
+    sql_keywords = ['SELECT', 'UPDATE', 'INSERT INTO', 'DELETE FROM', 'WITH', 'TRUNCATE', 'DROP', 'CREATE', 'MERGE', 'ALTER', 'EXECUTE']
 
     # Process each query and assign it to the corresponding job
     for sql_pos, query in sql_queries:
