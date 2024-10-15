@@ -35,8 +35,8 @@ if extension == ".dsx":
         print("Kết thúc tiến trình lọc ra các câu truy vấn.\n")
         
         # Tạo đường dẫn tới file Excel để lưu kết quả
-        file_input = fr"Output\SQL_Job_DS\{file_name}"
-        file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
+        file_input = fr"Output/SQL_Job_DS/{file_name}"
+        file_output = fr"Output/Table_Column/{file_name}_TAB_COL.xlsx"
         
         total_files = count_sql_files(file_input)
         files_processed = 0
@@ -103,8 +103,8 @@ else:
         print("Kết thúc tiến trình lọc ra các câu truy vấn.\n")
         
         # Tạo đường dẫn tới file Excel để lưu kết quả
-        file_input = fr"Output\SQL_Docx\{file_name}_SQLs.xlsx"
-        file_output = fr"Output\Table_Column\{file_name}_TAB_COL.xlsx"
+        file_input = fr"Output/SQL_Docx/{file_name}_SQLs.xlsx"
+        file_output = fr"Output/Table_Column/{file_name}_TAB_COL.xlsx"
 
         try:
             df = pd.read_excel(file_input)

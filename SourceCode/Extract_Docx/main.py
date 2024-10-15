@@ -2,8 +2,8 @@ from SourceCode.Extract_Docx.Docx_Text import extract_sql_code
 
 
 def docx_to_excel(file_name):
-    file_input = fr"Input\Docx\{file_name}.docx"
-    file_output = fr"Output\SQL_Docx\{file_name}_SQLs.xlsx"
+    file_input = fr"Input/Docx/{file_name}.docx"
+    file_output = fr"Output/SQL_Docx/{file_name}_SQLs.xlsx"
     
     # Đọc file Word và trích xuất SQL code vào DataFrame
     try:

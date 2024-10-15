@@ -5,8 +5,8 @@ from SourceCode.Extract_Job_DataStage.Job_DS_to_sql import extract_jobs_to_sql
 # Xuất file Job dưới dạng Excel
 def job_to_excel(file_name):
     # Đường dẫn input và output
-    file_input = fr"Input\Job_DataStage\{file_name}.dsx"
-    file_output = fr"Output\SQL_Job_DS\{file_name}_SQLs.xlsx"
+    file_input = fr"Input/Job_DataStage/{file_name}.dsx"
+    file_output = fr"Output/SQL_Job_DS/{file_name}_SQLs.xlsx"
 
     # Đọc nội dung của file .dsx
     try:
@@ -27,8 +27,8 @@ def job_to_excel(file_name):
 # Xuất file Job dưới dạng thư mục chứa các file .sql
 def job_to_txt(file_name):
     
-    file_input = fr"Input\Job_DataStage\{file_name}.dsx"
-    output = fr"Output\SQL_Job_DS\{file_name}" 
+    file_input = fr"Input/Job_DataStage/{file_name}.dsx"
+    output = fr"Output/SQL_Job_DS/{file_name}" 
 
     try:
         with open(file_input, 'r', encoding='utf-8', errors='replace') as file:
